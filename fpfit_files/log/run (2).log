@@ -1,0 +1,9 @@
+CMD: bash /etc/software/fpfit/scripts/runfpfit1.sh ev.19250513.100746
+
+STDOUT:
+
+
+STDERR:
+/etc/software/fpfit/scripts/runfpfit1.sh: line 2: set: pipefail
+: invalid option name
+

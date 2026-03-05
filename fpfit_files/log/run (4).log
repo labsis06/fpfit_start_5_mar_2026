@@ -1,0 +1,8 @@
+CMD: bash /etc/software/fpfit/scripts/runfpfit1.sh ev.19250513.100746
+
+STDOUT:
+ERRORE: GMT non trovato. Verifica che l'ambiente conda 'gmt66' esista per l'utente che esegue lo script.
+
+
+STDERR:
+

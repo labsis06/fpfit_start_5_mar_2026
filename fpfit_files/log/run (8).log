@@ -1,0 +1,20 @@
+CMD: bash /etc/software/fpfit/scripts/runfpfit1.sh ev.19250513.100746
+
+STDOUT:
+ Fpfit uses 3-letter LOWER-CASE commands, which can be followed by
+ parameters in free-format, or which display current values & generate prompts.
+ Type "hel" for information  on available commands.
+ yes?  yes?    #      ORIGIN TIME         LOCATION         DEPTH    MAG   DDR  DIP  RAKE CNVRG
+  ---- ------------------- ------------------  -----    ---  ----- ---  ---- -----
+    1 20250513 1007 45.01 40 49.52  14  6.86   2.63   0.00    85   45   -10     
+      MULTIPLE SOLUTION                                      320   50  -170     
+ yes? 
+
+STDERR:
+psmeca [WARNING]: File <stdin> is empty!
+psmeca [WARNING]: No data records provided
+
+psmeca [WARNING]: File <stdin> is empty!
+psmeca [WARNING]: No data records provided
+
+

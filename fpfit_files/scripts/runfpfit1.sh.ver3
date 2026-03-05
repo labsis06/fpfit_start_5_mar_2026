@@ -1,0 +1,140 @@
+#!/bin/bash
+set -e
+set -u
+set -o pipefail
+
+nome="${1:?Uso: $0 <evento_senza_estensione>}"
+
+FPFIT_DIR="/etc/software/fpfit"
+TOPO="/etc/software/fpfit/dati/topotot.grd"
+
+# Conda (solo per eseguire GMT senza activate)
+CONDA="/etc/software/miniconda/miniconda3/bin/conda"
+GMT_ENV="/srv/fpfitweb/conda-envs/gmt66"
+
+# Funzione helper: esegue GMT in modo robusto (non dipende dal PATH)
+gmt_run() {
+  "$CONDA" run -p "$GMT_ENV" gmt "$@"
+}
+
+# --- Check rapidi (falliscono subito con messaggio chiaro)
+if [ ! -x "$CONDA" ]; then
+  echo "ERRORE: conda non trovato/eseguibile in: $CONDA"
+  exit 2
+fi
+
+# verifica che GMT funzioni
+if ! "$CONDA" run -p "$GMT_ENV" gmt --version >/dev/null 2>&1; then
+  echo "ERRORE: GMT non disponibile nell'env: $GMT_ENV"
+  exit 2
+fi
+
+if [ ! -f "${nome}.grid0.loc.h71" ]; then
+  echo "ERRORE: file input mancante: ${nome}.grid0.loc.h71"
+  exit 2
+fi
+
+if [ ! -f "$TOPO" ]; then
+  echo "ERRORE: griglia TOPO mancante: $TOPO"
+  exit 2
+fi
+
+# --- Input hypo71
+cp "${nome}.grid0.loc.h71" file.loc.h71
+# evita casi EOF “strani”
+printf '\n' >> file.loc.h71
+
+# --- fpfit input
+cat > h71.inp <<'EOF'
+ttl   1 'none'
+hyp 'file.loc.h71'
+out 'fpfit.out'
+pol 'fpfit.pol'
+sum 'fpfit.fps'
+for   1
+mag      0.
+obs  6
+dis  0.1000E+06
+res   100.0
+ain      0.      180.0
+amp   0
+bst   0
+fin   1
+rep   1
+cmp   0
+hdr  0.1000E-01 0.2000E-01 0.5000E-01 0.1000
+mcr  0.2000      1.000      1.000      1.000
+dir    0.00      360.0      20.00      5.000
+dip    0.00      90.00      20.00      5.000
+rak  -180.0      180.0      20.00      10.00
+EOF
+
+# --- run fpfit
+"${FPFIT_DIR}/fpfit" <<EOD
+@h71.inp
+fps
+sto
+EOD
+
+# ------------------------------------------------------------
+# (OPZIONALE) fpplot: se esiste e funziona, genera un PS e PDF
+# ------------------------------------------------------------
+PDF_MAIN_CREATED=0
+
+if [ -x "${FPFIT_DIR}/fpplot" ]; then
+  # fpplot spesso è interattivo: proviamo come nel tuo script
+  set +e
+  "${FPFIT_DIR}/fpplot" <<EOD
+fpfit.pol
+y
+y
+y
+a
+0
+2
+stop
+EOD
+  fpplot_rc=$?
+  set -e
+
+  # Cerca un PS prodotto da fpplot: alcuni usano LaserWriter.ps, altri file_da_stampare.ps
+  PS_OUT=""
+  if [ -f "LaserWriter.ps" ]; then
+    PS_OUT="LaserWriter.ps"
+  elif [ -f "file_da_stampare.ps" ]; then
+    PS_OUT="file_da_stampare.ps"
+  fi
+
+  if [ -n "$PS_OUT" ]; then
+    ps2pdf "$PS_OUT" "${nome}.pdf"
+    PDF_MAIN_CREATED=1
+  fi
+fi
+
+# ------------------------------------------------------------
+# GMT map (questa è la parte “affidabile” per il web)
+# ------------------------------------------------------------
+gmt_run psbasemap -R14.03/14.23/40.77/40.88 -Ba2m::WsNe -Jm60 -Y15 -X2 -P -K > mechanism.ps
+gmt_run grdcontour "$TOPO" -Ccont  -A -R -Ba0 -Jm -K -O >> mechanism.ps
+gmt_run grdcontour "$TOPO" -Ccont0 -R -Ba0 -W2 -Jm -K -O >> mechanism.ps
+
+"${FPFIT_DIR}/fpfit2gmt" < fpfit.fps | awk '{print -$2,      $1, 0., $4, $5, $6, 5., 0., 0.}' | sed -n 1p | gmt_run psmeca -R14.03/14.23/40.77/40.88 -Jm60 -Ba0 -Sa1.0 -K -O >> mechanism.ps
+"${FPFIT_DIR}/fpfit2gmt" < fpfit.fps | awk '{print -$2+0.02, $1, 0., $4, $5, $6, 5., 0., 0.}' | sed -n 2p | gmt_run psmeca -R14.03/14.23/40.77/40.88 -Jm60 -Ba0 -Sa1.0 -K -O >> mechanism.ps
+"${FPFIT_DIR}/fpfit2gmt" < fpfit.fps | awk '{print -$2+0.04, $1, 0., $4, $5, $6, 5., 0., 0.}' | sed -n 3p | gmt_run psmeca -R14.03/14.23/40.77/40.88 -Jm60 -Ba0 -Sa1.0 -K -O >> mechanism.ps
+
+ps2pdf mechanism.ps "${nome}.gmt.pdf"
+
+# Se fpplot non ha creato il PDF principale, usa quello GMT come default
+if [ "$PDF_MAIN_CREATED" -eq 0 ]; then
+  cp "${nome}.gmt.pdf" "${nome}.pdf"
+fi
+
+# --- rename outputs
+mv fpfit.out "${nome}.out"
+mv fpfit.pol "${nome}.pol"
+mv fpfit.fps "${nome}.fps"
+
+# --- cleanup
+rm -f LaserWriter.ps file_da_stampare.ps file.loc.h71 mechanism.ps h71.inp
+
+exit 0

@@ -1,0 +1,115 @@
+#!/bin/bash
+set -e
+set -u
+set -o pipefail
+
+nome="${1:?Uso: $0 <evento_senza_estensione>}"
+
+FPFIT_DIR="/etc/software/fpfit"
+SCRIPTS_DIR="/etc/software/fpfit/scripts"
+TOPO="/etc/software/fpfit/dati/topotot.grd"
+
+CONDA_BASE="/etc/software/miniconda/miniconda3"
+CONDA_SH="${CONDA_BASE}/etc/profile.d/conda.sh"
+
+# ---- GMT: prova a usare l'env conda gmt66 se esiste, altrimenti fallback su path diretto
+GMT_BIN=""
+if [ -f "$CONDA_SH" ]; then
+  # abilita conda in shell non interattiva
+  source "$CONDA_SH"
+
+  if conda env list | awk '{print $1}' | grep -qx "gmt66"; then
+    conda activate gmt66
+    GMT_BIN="$(command -v gmt || true)"
+  fi
+fi
+
+# fallback: prova path standard envs
+if [ -z "${GMT_BIN}" ]; then
+  if [ -x "${CONDA_BASE}/envs/gmt66/bin/gmt" ]; then
+    GMT_BIN="${CONDA_BASE}/envs/gmt66/bin/gmt"
+  fi
+fi
+
+if [ -z "${GMT_BIN}" ]; then
+  echo "ERRORE: GMT non trovato. Verifica che l'ambiente conda 'gmt66' esista per l'utente che esegue lo script."
+  exit 2
+fi
+
+# ---- Input hypo71
+cp "${nome}.grid0.loc.h71" file.loc.h71
+printf '\n' >> file.loc.h71
+
+# ---- fpfit input
+cat > h71.inp <<'EOF'
+ttl   1 'none'
+hyp 'file.loc.h71'
+out 'fpfit.out'
+pol 'fpfit.pol'
+sum 'fpfit.fps'
+for   1
+mag      0.
+obs  6
+dis  0.1000E+06
+res   100.0
+ain      0.      180.0
+amp   0
+bst   0
+fin   1
+rep   1
+cmp   0
+hdr  0.1000E-01 0.2000E-01 0.5000E-01 0.1000
+mcr  0.2000      1.000      1.000      1.000
+dir    0.00      360.0      20.00      5.000
+dip    0.00      90.00      20.00      5.000
+rak  -180.0      180.0      20.00      10.00
+EOF
+
+# ---- run fpfit
+"${FPFIT_DIR}/fpfit" <<EOD
+@h71.inp
+fps
+sto
+EOD
+
+# ---- run fpplot (attenzione: deve essere un binario Linux valido)
+"${FPFIT_DIR}/fpplot" <<EOD
+fpfit.pol
+y
+y
+y
+a
+0
+2
+stop
+EOD
+
+
+PS_OUT="file_da_stampare.ps"
+
+ps2pdf "$PS_OUT" "${nome}.pdf"
+
+# ---- GMT map
+"${GMT_BIN}" psbasemap -R14.03/14.23/40.77/40.88 -Ba2m::WsNe -Jm60 -Y15 -X2 -P -K > mechanism.ps
+"${GMT_BIN}" grdcontour "$TOPO" -Ccont  -A -R -Ba0 -Jm -K -O >> mechanism.ps
+"${GMT_BIN}" grdcontour "$TOPO" -Ccont0 -R -Ba0 -W2 -Jm -K -O >> mechanism.ps
+
+"${FPFIT_DIR}/fpfit2gmt" < fpfit.fps | awk '{print -$2,      $1, 0., $4, $5, $6, 5., 0., 0.}' | sed -n 1p | "${GMT_BIN}" psmeca -R14.03/14.23/40.77/40.88 -Jm60 -Ba0 -Sa1.0 -K -O >> mechanism.ps
+"${FPFIT_DIR}/fpfit2gmt" < fpfit.fps | awk '{print -$2+0.02, $1, 0., $4, $5, $6, 5., 0., 0.}' | sed -n 2p | "${GMT_BIN}" psmeca -R14.03/14.23/40.77/40.88 -Jm60 -Ba0 -Sa1.0 -K -O >> mechanism.ps
+"${FPFIT_DIR}/fpfit2gmt" < fpfit.fps | awk '{print -$2+0.04, $1, 0., $4, $5, $6, 5., 0., 0.}' | sed -n 3p | "${GMT_BIN}" psmeca -R14.03/14.23/40.77/40.88 -Jm60 -Ba0 -Sa1.0 -K -O >> mechanism.ps
+
+ps2pdf mechanism.ps "${nome}.gmt.pdf"
+
+# ---- rename outputs
+mv fpfit.out "${nome}.out"
+mv fpfit.pol "${nome}.pol"
+mv fpfit.fps "${nome}.fps"
+
+# ---- cleanup
+rm -f file_da_stampare.ps file.loc.h71 mechanism.ps h71.inp
+
+# ---- conda cleanup (solo se era attivato)
+if command -v conda >/dev/null 2>&1; then
+  # disattiva solo se siamo dentro un env
+  conda deactivate || true
+fi

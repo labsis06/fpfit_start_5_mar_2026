@@ -1,0 +1,19 @@
+CMD: bash /etc/software/fpfit/scripts/runfpfit1.sh ev.19250513.100746
+
+STDOUT:
+ Fpfit uses 3-letter LOWER-CASE commands, which can be followed by
+ parameters in free-format, or which display current values & generate prompts.
+ Type "hel" for information  on available commands.
+ yes?  yes?    #      ORIGIN TIME         LOCATION         DEPTH    MAG   DDR  DIP  RAKE CNVRG
+  ---- ------------------- ------------------  -----    ---  ----- ---  ---- -----
+    1 20250513 1007 45.01 40 49.52  14  6.86   2.63   0.00    85   45   -10     
+      MULTIPLE SOLUTION                                      320   50  -170     
+ yes? 
+
+STDERR:
+gmtset [ERROR]: Unacceptable dmmss template plain
+gmtset [ERROR]: FORMAT_GEO_MAP given illegal value (plain)!
+gmtset [ERROR]:  1 GMT Defaults conversion errors from command options
+
+ERROR conda.cli.main_run:execute(127): `conda run gmt set FORMAT_GEO_MAP=plain` failed. (See above for error)
+

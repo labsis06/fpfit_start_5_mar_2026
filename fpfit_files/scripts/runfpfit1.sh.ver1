@@ -1,0 +1,75 @@
+#! /bin/bash
+
+# --- abilita conda in uno script non-interattivo ---
+source /etc/software/miniconda/miniconda3/etc/profile.d/conda.sh
+conda activate gmt66
+
+nome=$1
+
+cp $1.grid0.loc.h71 file.loc.h71
+
+echo "ttl   1 'none'
+hyp 'file.loc.h71'
+out 'fpfit.out'
+pol 'fpfit.pol'
+sum 'fpfit.fps'
+for   1
+mag      0.    
+obs  6
+dis  0.1000E+06
+res   100.0    
+ain      0.      180.0    
+amp   0
+bst   0
+fin   1
+rep   1
+cmp   0
+hdr  0.1000E-01 0.2000E-01 0.5000E-01 0.1000    
+mcr  0.2000      1.000      1.000      1.000    
+dir    0.00      360.0      20.00      5.000    
+dip    0.00      90.00      20.00      5.000    
+rak  -180.0      180.0      20.00      10.00 " >   h71.inp
+
+
+#rm file.loc.h71
+
+/etc/software/fpfit/fpfit << EOD
+@h71.inp
+fps
+sto
+EOD
+
+/etc/software/fpfit/fpplot << EOD
+fpfit.pol
+y
+y
+y
+a
+0
+2
+stop
+EOD
+
+ps2pdf file_da_stampare.ps $nome.pdf
+
+TOPO=/etc/software/fpfit/dati/topotot.grd
+gmt psbasemap -R14.03/14.23/40.77/40.88 -Ba2m::WsNe  -Jm60 -Y15 -X2 -P -K > mechanism.ps
+gmt grdcontour $TOPO -Ccont -A -R -Ba0 -Jm -K -O >> mechanism.ps
+gmt grdcontour $TOPO -Ccont0 -R -Ba0 -W2 -Jm -K -O >> mechanism.ps
+/etc/software/fpfit/fpfit2gmt < fpfit.fps | awk '{print -$2, $1, 0., $4, $5, $6,5., 0., 0.}' |sed -n 1p| gmt psmeca -R14.03/14.23/40.77/40.88 -Jm60 -Ba0 -Sa1.0 -K -O >> mechanism.ps
+/etc/software/fpfit/fpfit2gmt < fpfit.fps | awk '{print -$2+0.02, $1, 0., $4, $5, $6,5., 0., 0.}' |sed -n 2p| gmt psmeca -R14.03/14.23/40.77/40.88 -Jm60 -Ba0 -Sa1.0 -K -O >> mechanism.ps
+/etc/software/fpfit/fpfit2gmt < fpfit.fps | awk '{print -$2+0.04, $1, 0., $4, $5, $6,5., 0., 0.}' |sed -n 3p| gmt psmeca -R14.03/14.23/40.77/40.88 -Jm60 -Ba0 -Sa1.0 -K -O >> mechanism.ps
+
+#| gmt psxy -Skmeca/5  -R14.03/14.23/40.77/40.88 -Ba0  -Jm60 -K -O > mechanism.ps 
+#ps2pdf mechanism.ps mechanism.pdf
+#	write (6, 200) lat, lon, depth, strike, dip, rake, mag, '0. 0.'
+/etc/software/fpfit/fpfit2gmt < fpfit.fps | awk '{print -$2, $1, 0., $4, $5, $6}'
+ps2pdf mechanism.ps $nome.gmt.pdf
+echo $nome
+mv fpfit.out $nome.out
+mv fpfit.pol $nome.pol
+mv fpfit.fps $nome.fps
+rm LaserWriter.ps
+rm file.loc.h71
+
+conda deactivate gmt66

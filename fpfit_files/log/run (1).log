@@ -1,0 +1,59 @@
+CMD: bash /etc/software/fpfit/scripts/runfpfit1.sh ev.19250513.100746
+
+STDOUT:
+ Fpfit uses 3-letter LOWER-CASE commands, which can be followed by
+ parameters in free-format, or which display current values & generate prompts.
+ Type "hel" for information  on available commands.
+ yes?  yes?    #      ORIGIN TIME         LOCATION         DEPTH    MAG   DDR  DIP  RAKE CNVRG
+  ---- ------------------- ------------------  -----    ---  ----- ---  ---- -----
+    1 20250513 1007 45.01 40 49.52  14  6.86   2.63   0.00    85   45   -10     
+      MULTIPLE SOLUTION                                      320   50  -170     
+14.1143 40.8253 0 355. 45. -10.
+14.1143 40.8253 0 230. 50. -170.
+ev.19250513.100746
+
+
+STDERR:
+
+EnvironmentNameNotFound: Could not find conda environment: gmt66
+You can list all discoverable environments with `conda info --envs`.
+
+
+At line 133 of file rdeq1.f (unit = 2, file = 'file.loc.h71')
+Fortran runtime error: Sequential READ or WRITE not allowed after EOF marker, possibly use REWIND or BACKSPACE
+
+Error termination. Backtrace:
+#0  0x7f757951ccea
+#1  0x7f757951d809
+#2  0x7f757951e28f
+#3  0x7f757974516d
+#4  0x5612d48380d7
+#5  0x5612d4826590
+#6  0x5612d482aa16
+#7  0x7f75791e41e2
+#8  0x5612d48262dd
+#9  0xffffffffffffffff
+/etc/software/fpfit/scripts/runfpfit1.sh: line 42: /etc/software/fpfit/fpplot: cannot execute binary file: Exec format error
+Error: /undefinedfilename in (file_da_stampare.ps)
+Operand stack:
+
+Execution stack:
+   %interp_exit   .runexec2   --nostringval--   --nostringval--   --nostringval--   2   %stopped_push   --nostringval--   --nostringval--   --nostringval--   false   1   %stopped_push
+Dictionary stack:
+   --dict:724/1123(ro)(G)--   --dict:0/20(G)--   --dict:75/200(L)--
+Current allocation mode is local
+Last OS error: No such file or directory
+GPL Ghostscript 9.27: Unrecoverable error, exit code 1
+/etc/software/fpfit/scripts/runfpfit1.sh: line 56: gmt: command not found
+/etc/software/fpfit/scripts/runfpfit1.sh: line 57: gmt: command not found
+/etc/software/fpfit/scripts/runfpfit1.sh: line 58: gmt: command not found
+/etc/software/fpfit/scripts/runfpfit1.sh: line 59: gmt: command not found
+/etc/software/fpfit/scripts/runfpfit1.sh: line 60: gmt: command not found
+/etc/software/fpfit/scripts/runfpfit1.sh: line 61: gmt: command not found
+rm: cannot remove 'file_da_stampare.ps': No such file or directory
+
+ArgumentError: deactivate does not accept arguments
+remainder_args: ['gmt66']
+
+
+

@@ -1,0 +1,4 @@
+# Ignore Google Docs files
+*.gdoc
+*.hdf4
+

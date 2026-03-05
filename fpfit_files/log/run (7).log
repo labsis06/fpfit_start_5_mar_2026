@@ -1,0 +1,22 @@
+CMD: bash /etc/software/fpfit/scripts/runfpfit1.sh ev.19250513.100746
+
+STDOUT:
+
+
+STDERR:
+/etc/software/fpfit/scripts/runfpfit1.sh: line 2: set: -
+: invalid option
+set: usage: set [-abefhkmnptuvxBCHP] [-o option-name] [--] [arg ...]
+/etc/software/fpfit/scripts/runfpfit1.sh: line 3: set: -
+: invalid option
+set: usage: set [-abefhkmnptuvxBCHP] [-o option-name] [--] [arg ...]
+/etc/software/fpfit/scripts/runfpfit1.sh: line 4: set: pipefail
+: invalid option name
+/etc/software/fpfit/scripts/runfpfit1.sh: line 5: $'\r': command not found
+/etc/software/fpfit/scripts/runfpfit1.sh: line 7: $'\r': command not found
+/etc/software/fpfit/scripts/runfpfit1.sh: line 10: $'\r': command not found
+/etc/software/fpfit/scripts/runfpfit1.sh: line 14: $'\r': command not found
+/etc/software/fpfit/scripts/runfpfit1.sh: line 16: syntax error near unexpected token `$'{\r''
+/etc/software/fpfit/scripts/runfpfit1.sh: line 16: `gmt_run() {
+'
+

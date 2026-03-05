@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Risultato</title></head>
+<body>
+  <h2>Risultato</h2>
+
+  {% if ok %}
+    <p><b>OK</b> — Evento: {{ base }}</p>
+    <ul>
+      <li><a href="/file/{{ job_id }}/{{ base }}.gmt.pdf">Scarica grafico GMT (PDF)</a></li>
+      <li><a href="/file/{{ job_id }}/run.log">Log</a></li>
+    </ul>
+
+    <p>Altri file (se esistono):</p>
+    <ul>
+      <li><a href="/file/{{ job_id }}/{{ base }}.out">.out</a></li>
+      <li><a href="/file/{{ job_id }}/{{ base }}.pol">.pol</a></li>
+      <li><a href="/file/{{ job_id }}/{{ base }}.fps">.fps</a></li>
+    </ul>
+  {% else %}
+    <p><b>ERRORE</b> — returncode: {{ returncode }}</p>
+    <p><a href="/file/{{ job_id }}/run.log">Apri run.log</a></p>
+  {% endif %}
+
+  <p><a href="/">Torna</a></p>
+</body>
+</html>

@@ -1,0 +1,14 @@
+[Unit]
+Description=FPFIT Web (FastAPI)
+After=network.target
+
+[Service]
+User=fpfitweb
+Group=fpfitweb
+WorkingDirectory=/srv/fpfitweb
+ExecStart=/srv/fpfitweb/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8001 --app-dir /srv/fpfitweb
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
