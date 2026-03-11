@@ -1,15 +1,164 @@
 <!doctype html>
-<html>
-<head><meta charset="utf-8"><title>FPFIT Web</title></head>
-<body>
-  <h2>FPFIT → GMT (meccanismo focale)</h2>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FPFIT Web</title>
+  <style>
+    :root {
+      --bg: #f3f7fb;
+      --card: #ffffff;
+      --primary: #1d4ed8;
+      --primary-dark: #1e40af;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #dbe4f0;
+      --shadow: 0 14px 40px rgba(15, 23, 42, 0.12);
+    }
 
-  <form action="/run" method="post" enctype="multipart/form-data">
-    <p>
-      <label>File Hypo71 (*.grid0.loc.h71):</label><br>
-      <input type="file" name="h71_file" required>
-    </p>
-    <button type="submit">Esegui</button>
-  </form>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(circle at 15% 15%, #dbeafe 0%, transparent 35%),
+        radial-gradient(circle at 85% 20%, #c7d2fe 0%, transparent 30%),
+        var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: min(720px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 20px;
+      padding: 28px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(140deg, #eff6ff, #f8fafc);
+    }
+
+    .logo-wrap {
+      width: 86px;
+      height: 86px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 6px 18px rgba(30, 64, 175, 0.22);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.35rem, 1.8vw + 0.9rem, 2rem);
+      line-height: 1.2;
+    }
+
+    .hero p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    form {
+      padding: 28px;
+      display: grid;
+      gap: 16px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      border: 1px dashed #94a3b8;
+      border-radius: 12px;
+      background: #f8fafc;
+      padding: 12px;
+      color: #1e293b;
+    }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(120deg, var(--primary), #2563eb);
+      cursor: pointer;
+      width: fit-content;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      box-shadow: 0 8px 20px rgba(29, 78, 216, 0.28);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      background: linear-gradient(120deg, var(--primary-dark), var(--primary));
+    }
+
+    button:active { transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <section class="hero">
+      <div class="logo-wrap" aria-hidden="true">
+        <svg width="64" height="64" viewBox="0 0 100 100" role="img" aria-label="Logo meccanismo focale">
+          <defs>
+            <clipPath id="beachball">
+              <circle cx="50" cy="50" r="44"></circle>
+            </clipPath>
+          </defs>
+          <circle cx="50" cy="50" r="44" fill="#ffffff" stroke="#0f172a" stroke-width="4"></circle>
+          <g clip-path="url(#beachball)">
+            <path d="M50 6 A44 44 0 0 1 94 50 L50 50 Z" fill="#111827"></path>
+            <path d="M6 50 A44 44 0 0 1 50 94 L50 50 Z" fill="#111827"></path>
+            <line x1="12" y1="12" x2="88" y2="88" stroke="#0f172a" stroke-width="3"></line>
+            <line x1="88" y1="12" x2="12" y2="88" stroke="#0f172a" stroke-width="3"></line>
+          </g>
+        </svg>
+      </div>
+      <div>
+        <h1>FPFIT → GMT (meccanismo focale)</h1>
+        <p>Carica il file Hypo71 e genera rapidamente il risultato in formato GMT/PDF.</p>
+      </div>
+    </section>
+
+    <form action="/run" method="post" enctype="multipart/form-data">
+      <div>
+        <label for="h71_file">File Hypo71 (*.grid0.loc.h71)</label>
+        <input id="h71_file" type="file" name="h71_file" required>
+      </div>
+      <p class="hint">Formato supportato: <code>.grid0.loc.h71</code> (anche <code>.loc.h71</code>).</p>
+      <button type="submit">Esegui elaborazione</button>
+    </form>
+  </main>
 </body>
 </html>
