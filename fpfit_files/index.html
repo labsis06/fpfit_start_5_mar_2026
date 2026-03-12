@@ -152,13 +152,29 @@
     </section>
 
     <form action="/run" method="post" enctype="multipart/form-data">
-      <div>
-        <label for="h71_file">File Hypo71 (*.grid0.loc.h71)</label>
-        <input id="h71_file" type="file" name="h71_file" required>
-      </div>
-      <p class="hint">Formato supportato: <code>.grid0.loc.h71</code> (anche <code>.loc.h71</code>).</p>
-      <button type="submit">Esegui elaborazione</button>
-    </form>
+  <div>
+    <label for="h71_file">File diretto per FPFIT</label>
+    <input id="h71_file" type="file" name="h71_file">
+    <p class="hint">
+      Formati supportati: <code>.grid0.loc.h71</code>, <code>.loc.h71</code>, <code>.prt</code>
+    </p>
+  </div>
+
+  <div>
+    <label for="p01_file">File P01 (opzionale)</label>
+    <input id="p01_file" type="file" name="p01_file">
+  </div>
+
+  <div>
+    <label for="b01_file">File B01 (opzionale)</label>
+    <input id="b01_file" type="file" name="b01_file">
+    <p class="hint">
+      Carica <code>.p01</code> e <code>.b01</code> insieme per passare da Hypo71 + flegrei.sta.
+    </p>
+  </div>
+
+  <button type="submit">Esegui elaborazione</button>
+</form>
   </main>
 </body>
 </html>
