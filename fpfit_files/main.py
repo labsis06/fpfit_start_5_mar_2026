@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 from uuid import uuid4
-
+from typing import Optional
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
