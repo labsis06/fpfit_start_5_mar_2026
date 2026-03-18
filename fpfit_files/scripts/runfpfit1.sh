@@ -3,16 +3,16 @@ set -e
 set -u
 set -o pipefail
 
-nome="${1:?Uso: $0 <evento_senza_estensione>}"
+mode="${1:?Uso: $0 <direct|hypo71> <evento_senza_estensione>}"
+nome="${2:?Uso: $0 <direct|hypo71> <evento_senza_estensione>}"
 
 FPFIT_DIR="/etc/software/fpfit"
+HYPO71_DIR="/etc/software/fpfit/hypo71"
 DATA_DIR="/etc/software/fpfit/dati"
 
-# Conda (solo per eseguire GMT senza activate)
 CONDA="/etc/software/miniconda/miniconda3/bin/conda"
 GMT_ENV="/srv/fpfitweb/conda-envs/gmt66"
 
-# Funzione helper: esegue GMT (non dipende dal PATH)
 gmt_run() {
   "$CONDA" run -p "$GMT_ENV" gmt "$@"
 }
@@ -38,6 +38,81 @@ fi
 cp "${nome}.grid0.loc.h71" file.loc.h71
 # evita casi EOF “strani”
 printf '\n' >> file.loc.h71
+
+
+# --- prepara file.loc.h71 in base alla modalità scelta
+case "$mode" in
+  direct)
+    if [ -f "${nome}.grid0.loc.h71" ]; then
+      cp "${nome}.grid0.loc.h71" file.loc.h71
+    elif [ -f "${nome}.loc.h71" ]; then
+      cp "${nome}.loc.h71" file.loc.h71
+    elif [ -f "${nome}.prt" ]; then
+      cp "${nome}.prt" file.loc.h71
+    else
+      echo "ERRORE: nessun file diretto trovato per base ${nome}"
+      exit 2
+    fi
+    ;;
+
+  hypo71)
+    if [ ! -f "${nome}.p01" ]; then
+      echo "ERRORE: file input mancante: ${nome}.p01"
+      exit 2
+    fi
+
+    if [ ! -f "${nome}.b01" ]; then
+      echo "ERRORE: file input mancante: ${nome}.b01"
+      exit 2
+    fi
+
+    if [ ! -f "${HYPO71_DIR}/flegrei.sta" ]; then
+      echo "ERRORE: file stazioni non trovato: ${HYPO71_DIR}/flegrei.sta"
+      exit 2
+    fi
+
+    cp "${HYPO71_DIR}/flegrei.sta" .
+
+    # =========================================================
+    # QUI devi mettere ESATTAMENTE il comando Hypo71 che usi già
+    # sul server per trasformare .p01 + .b01 in file.loc.h71
+    # =========================================================
+    #
+    # Esempio logico:
+    #   1. lanci hypo71 con flegrei.sta
+    #   2. usi ${nome}.p01 e ${nome}.b01
+    #   3. il risultato finale deve essere file.loc.h71
+    #
+    # Se il tuo workflow attuale produce prima un .prt
+    # e quel .prt è equivalente al .loc.h71, allora fai:
+    #
+    #   cp output_generato.prt file.loc.h71
+    #
+    # Oppure, se produce direttamente .loc.h71:
+    #
+    #   cp output_generato.loc.h71 file.loc.h71
+    #
+    # ESEMPIO SE HAI GIÀ UNO SCRIPT SERVER:
+    #   "${HYPO71_DIR}/run_hypo71.sh" "${nome}.p01" "${nome}.b01" flegrei.sta
+    #   cp output.loc.h71 file.loc.h71
+    #
+    # BLOCCA QUI se file.loc.h71 non è stato creato:
+    if [ ! -f file.loc.h71 ]; then
+      echo "ERRORE: Hypo71 non ha prodotto file.loc.h71"
+      exit 2
+    fi
+    ;;
+
+  *)
+    echo "ERRORE: modalità non valida: $mode"
+    exit 2
+    ;;
+esac
+
+# evita casi EOF strani
+printf '\n' >> file.loc.h71
+
+
 
 # --- fpfit input
 cat > h71.inp <<'EOF'
