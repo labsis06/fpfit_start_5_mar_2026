@@ -44,14 +44,9 @@ case "$mode" in
     fi
     ;;
 
-  hypo71)
+    hypo71)
     if [ ! -f "${nome}.p01" ]; then
       echo "ERRORE: file input mancante: ${nome}.p01"
-      exit 2
-    fi
-
-    if [ ! -f "${nome}.b01" ]; then
-      echo "ERRORE: file input mancante: ${nome}.b01"
       exit 2
     fi
 
@@ -60,34 +55,42 @@ case "$mode" in
       exit 2
     fi
 
-    cp "${HYPO71_DIR}/flegrei.sta" .
+    # pulizia file eventuali di run precedenti
+    rm -f HYPO71PC.INP HYPO71PC.PRT HYPO71PC.PUN HYPO71PC.RES file.loc.h71
 
-    # =========================================================
-    # QUI devi mettere ESATTAMENTE il comando Hypo71 che usi già
-    # sul server per trasformare .p01 + .b01 in file.loc.h71
-    # =========================================================
-    #
-    # Esempio logico:
-    #   1. lanci hypo71 con flegrei.sta
-    #   2. usi ${nome}.p01 e ${nome}.b01
-    #   3. il risultato finale deve essere file.loc.h71
-    #
-    # Se il tuo workflow attuale produce prima un .prt
-    # e quel .prt è equivalente al .loc.h71, allora fai:
-    #
-    #   cp output_generato.prt file.loc.h71
-    #
-    # Oppure, se produce direttamente .loc.h71:
-    #
-    #   cp output_generato.loc.h71 file.loc.h71
-    #
-    # ESEMPIO SE HAI GIÀ UNO SCRIPT SERVER:
-    #   "${HYPO71_DIR}/run_hypo71.sh" "${nome}.p01" "${nome}.b01" flegrei.sta
-    #   cp output.loc.h71 file.loc.h71
-    #
-    # BLOCCA QUI se file.loc.h71 non è stato creato:
-    if [ ! -f file.loc.h71 ]; then
-      echo "ERRORE: Hypo71 non ha prodotto file.loc.h71"
+    # 1) costruisco l'input di Hypo71
+    cp "${HYPO71_DIR}/flegrei.sta" HYPO71PC.INP
+    cat "${nome}.p01" >> HYPO71PC.INP
+    printf '                 10                                                              \n' >> HYPO71PC.INP
+    printf '                 \n' >> HYPO71PC.INP
+
+    echo "[INFO] creato HYPO71PC.INP"
+
+    # 2) lancio Hypo71
+    # prima provo in modalità con stdin rediretto
+    if /etc/software/hypo71/Hypo71PC < HYPO71PC.INP > hypo71.stdout 2> hypo71.stderr; then
+      echo "[INFO] Hypo71 eseguito con stdin rediretto"
+    else
+      echo "[WARN] primo tentativo Hypo71 fallito, provo esecuzione diretta"
+      /etc/software/hypo71/Hypo71PC > hypo71.stdout 2> hypo71.stderr || true
+    fi
+
+    # 3) controllo output utile
+    if [ -f "HYPO71PC.PRT" ]; then
+      cp "HYPO71PC.PRT" file.loc.h71
+      echo "[INFO] trovato HYPO71PC.PRT"
+    elif [ -f "${nome}.prt" ]; then
+      cp "${nome}.prt" file.loc.h71
+      echo "[INFO] trovato ${nome}.prt"
+    elif [ -f "${nome}.loc.h71" ]; then
+      cp "${nome}.loc.h71" file.loc.h71
+      echo "[INFO] trovato ${nome}.loc.h71"
+    else
+      echo "ERRORE: Hypo71 non ha prodotto HYPO71PC.PRT"
+      echo "----- hypo71.stdout -----"
+      cat hypo71.stdout 2>/dev/null || true
+      echo "----- hypo71.stderr -----"
+      cat hypo71.stderr 2>/dev/null || true
       exit 2
     fi
     ;;
