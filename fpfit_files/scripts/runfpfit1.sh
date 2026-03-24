@@ -8,6 +8,7 @@ nome="${2:?Uso: $0 <direct|hypo71> <evento_senza_estensione>}"
 
 FPFIT_DIR="/etc/software/fpfit"
 HYPO71_DIR="/etc/software/hypo71"
+HYPO71_EXE="/etc/software/hypo71/Hypo71PC"
 DATA_DIR="/etc/software/fpfit/dati"
 
 CONDA="/etc/software/miniconda/miniconda3/bin/conda"
