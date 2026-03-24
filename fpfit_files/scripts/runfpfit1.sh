@@ -29,17 +29,6 @@ if ! "$CONDA" run -p "$GMT_ENV" gmt --version >/dev/null 2>&1; then
   exit 2
 fi
 
-if [ ! -f "${nome}.grid0.loc.h71" ]; then
-  echo "ERRORE: file input mancante: ${nome}.grid0.loc.h71"
-  exit 2
-fi
-
-# --- Input hypo71
-cp "${nome}.grid0.loc.h71" file.loc.h71
-# evita casi EOF “strani”
-printf '\n' >> file.loc.h71
-
-
 # --- prepara file.loc.h71 in base alla modalità scelta
 case "$mode" in
   direct)

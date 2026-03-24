@@ -101,8 +101,16 @@ async def run(
             if len(data) > 50 * 1024 * 1024:
                 raise HTTPException(400, "File troppo grande (>50MB).")
 
-            # normalizzo sempre a .grid0.loc.h71
-            input_path = job_dir / f"{base}.grid0.loc.h71"
+            
+            if filename.endswith(".grid0.loc.h71"):
+                input_path = job_dir / f"{base}.grid0.loc.h71"
+            elif filename.endswith(".loc.h71"):
+                input_path = job_dir / f"{base}.loc.h71"
+            elif filename.lower().endswith(".prt"):
+                input_path = job_dir / f"{base}.prt"
+            else:
+                raise HTTPException(400, "Formato non supportato.")
+
             input_path.write_bytes(data)
 
             mode = "direct"
