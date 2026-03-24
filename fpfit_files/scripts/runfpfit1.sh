@@ -44,7 +44,7 @@ case "$mode" in
     fi
     ;;
 
-    hypo71)
+      hypo71)
     if [ ! -f "${nome}.p01" ]; then
       echo "ERRORE: file input mancante: ${nome}.p01"
       exit 2
@@ -55,10 +55,9 @@ case "$mode" in
       exit 2
     fi
 
-    # pulizia file eventuali di run precedenti
-    rm -f HYPO71PC.INP HYPO71PC.PRT HYPO71PC.PUN HYPO71PC.RES file.loc.h71
+    rm -f HYPO71PC.INP HYPO71PC.PRT HYPO71PC.PUN HYPO71PC.RES file.loc.h71 hypo71.cmd hypo71.stdout hypo71.stderr
 
-    # 1) costruisco l'input di Hypo71
+    # 1) costruisco l'input vero di Hypo71
     cp "${HYPO71_DIR}/flegrei.sta" HYPO71PC.INP
     cat "${nome}.p01" >> HYPO71PC.INP
     printf '                 10                                                              \n' >> HYPO71PC.INP
@@ -66,25 +65,21 @@ case "$mode" in
 
     echo "[INFO] creato HYPO71PC.INP"
 
-    # 2) lancio Hypo71
-    # prima provo in modalità con stdin rediretto
-    if /etc/software/hypo71/Hypo71PC < HYPO71PC.INP > hypo71.stdout 2> hypo71.stderr; then
-      echo "[INFO] Hypo71 eseguito con stdin rediretto"
-    else
-      echo "[WARN] primo tentativo Hypo71 fallito, provo esecuzione diretta"
-      /etc/software/hypo71/Hypo71PC > hypo71.stdout 2> hypo71.stderr || true
-    fi
+    # 2) file di controllo per stdin
+    cat > hypo71.cmd << 'EOF'
+HYPO71PC.INP
+HYPO71PC.PRT
+HYPO71PC.PUN
+HYPO71PC.RES
+EOF
 
-    # 3) controllo output utile
+    # 3) eseguo Hypo71
+    "${HYPO71_EXE}" < hypo71.cmd > hypo71.stdout 2> hypo71.stderr || true
+
+    # 4) recupero il file utile
     if [ -f "HYPO71PC.PRT" ]; then
       cp "HYPO71PC.PRT" file.loc.h71
       echo "[INFO] trovato HYPO71PC.PRT"
-    elif [ -f "${nome}.prt" ]; then
-      cp "${nome}.prt" file.loc.h71
-      echo "[INFO] trovato ${nome}.prt"
-    elif [ -f "${nome}.loc.h71" ]; then
-      cp "${nome}.loc.h71" file.loc.h71
-      echo "[INFO] trovato ${nome}.loc.h71"
     else
       echo "ERRORE: Hypo71 non ha prodotto HYPO71PC.PRT"
       echo "----- hypo71.stdout -----"
