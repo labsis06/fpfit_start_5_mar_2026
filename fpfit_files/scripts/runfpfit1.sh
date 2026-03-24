@@ -71,7 +71,6 @@ case "$mode" in
 HYPO71PC.INP
 HYPO71PC.PRT
 HYPO71PC.PUN
-HYPO71PC.RES
 EOF
 
     # 3) eseguo Hypo71
