@@ -63,7 +63,6 @@ case "$mode" in
 cp "${HYPO71_DIR}/flegrei.sta" HYPO71PC.INP
 
 sed -e 's/\r$//' \
-    -e 's/[[:space:]]FQ[[:space:]]*$//' \
     -e 's/^/ /' \
     "${nome}.p01" >> HYPO71PC.INP
 
