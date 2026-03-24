@@ -56,8 +56,8 @@ case "$mode" in
       exit 2
     fi
 
-    rm -f HYPO71PC.INP HYPO71PC.PRT HYPO71PC.PUN HYPO71PC.RES HYPO71PC.REL \
-          file.loc.h71 hypo71.cmd hypo71.stdout hypo71.stderr
+    # rm -f HYPO71PC.INP HYPO71PC.PRT HYPO71PC.PUN HYPO71PC.RES HYPO71PC.REL \
+      #    file.loc.h71 hypo71.cmd hypo71.stdout hypo71.stderr
 
     # costruzione input Hypo71 corretto
 cp "${HYPO71_DIR}/flegrei.sta" HYPO71PC.INP
