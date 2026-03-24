@@ -45,7 +45,7 @@ case "$mode" in
     fi
     ;;
 
-       hypo71)
+         hypo71)
     if [ ! -f "${nome}.p01" ]; then
       echo "ERRORE: file input mancante: ${nome}.p01"
       exit 2
@@ -59,15 +59,20 @@ case "$mode" in
     rm -f HYPO71PC.INP HYPO71PC.PRT HYPO71PC.PUN HYPO71PC.RES HYPO71PC.REL \
           file.loc.h71 hypo71.cmd hypo71.stdout hypo71.stderr
 
-    # 1) costruisco l'input vero di Hypo71
-    #    NON aggiungo la riga "10", perché è già nel file .p01
+    # 1) costruisco l'input di Hypo71
     cp "${HYPO71_DIR}/flegrei.sta" HYPO71PC.INP
-    cat "${nome}.p01" >> HYPO71PC.INP
+
+    # pulisco il .p01:
+    # - tolgo CR (\r)
+    # - tolgo il suffisso finale FQ
+    # - lascio invariata la riga finale "10"
+    sed -e 's/\r$//' -e 's/[[:space:]]FQ[[:space:]]*$//' "${nome}.p01" >> HYPO71PC.INP
+
     printf '\n' >> HYPO71PC.INP
 
     echo "[INFO] creato HYPO71PC.INP"
 
-    # 2) file di controllo per stdin: servono 6 righe
+    # 2) file di controllo per stdin
     cat > hypo71.cmd << 'EOF'
 HYPO71PC.INP
 HYPO71PC.PRT
