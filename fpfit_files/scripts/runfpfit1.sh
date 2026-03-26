@@ -65,7 +65,16 @@ case "$mode" in
 
 python3 /etc/software/fpfit/scripts/p01_to_hypo71_phase.py \
     "${nome}.p01" \
-    phase.tmp
+    phase.tmp || {
+  echo "ERRORE: conversione ${nome}.p01 -> phase.tmp fallita"
+  exit 2
+}
+
+echo "[DEBUG] prime righe phase.tmp"
+sed -n '1,10p' phase.tmp | cat -vet
+
+echo "12345678901234567890123456789012345678901234567890"
+sed -n '1,5p' phase.tmp
 
 cat phase.tmp >> HYPO71PC.INP
 
