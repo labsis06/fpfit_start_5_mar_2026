@@ -46,28 +46,30 @@ case "$mode" in
     ;;
 
          hypo71)
-    if [ ! -f "${nome}.p01" ]; then
-      echo "ERRORE: file input mancante: ${nome}.p01"
-      exit 2
-    fi
+    hypo71)
+  echo "[DEBUG] pwd=$(pwd)"
+  echo "[DEBUG] contenuto job dir:"
+  ls -l
 
-    if [ ! -f "${HYPO71_DIR}/flegrei.sta" ]; then
-      echo "ERRORE: file stazioni non trovato: ${HYPO71_DIR}/flegrei.sta"
-      exit 2
-    fi
+  if [ ! -f "${nome}.p01" ]; then
+    echo "ERRORE: file input mancante: ${nome}.p01"
+    exit 2
+  fi
 
-    # rm -f HYPO71PC.INP HYPO71PC.PRT HYPO71PC.PUN HYPO71PC.RES HYPO71PC.REL \
-      #    file.loc.h71 hypo71.cmd hypo71.stdout hypo71.stderr
+  if [ ! -f "${HYPO71_DIR}/flegrei.sta" ]; then
+    echo "ERRORE: file stazioni non trovato: ${HYPO71_DIR}/flegrei.sta"
+    exit 2
+  fi
 
-    # costruzione input Hypo71 corretto
-cp "${HYPO71_DIR}/flegrei.sta" HYPO71PC.INP
+  cp "${HYPO71_DIR}/flegrei.sta" HYPO71PC.INP
 
-sed -e 's/\r$//' \
-     "${nome}.p01" >> HYPO71PC.INP
+  sed -e 's/\r$//' \
+      "${nome}.p01" >> HYPO71PC.INP
 
-printf '\n' >> HYPO71PC.INP
+  printf '\n' >> HYPO71PC.INP
 
-echo "[INFO] creato HYPO71PC.INP (formato corretto)"
+  echo "[INFO] creato HYPO71PC.INP (formato corretto)"
+  ls -l HYPO71PC.INP
 
     # 2) file di controllo per stdin
     cat > hypo71.cmd << 'EOF'
