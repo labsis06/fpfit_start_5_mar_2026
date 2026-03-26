@@ -63,13 +63,14 @@ case "$mode" in
 
   cp "${HYPO71_DIR}/flegrei.sta" HYPO71PC.INP
 
-  sed -e 's/\r$//' \
-      "${nome}.p01" >> HYPO71PC.INP
+python3 /etc/software/fpfit/scripts/p01_to_hypo71_phase.py \
+    "${nome}.p01" \
+    phase.tmp
 
-  printf '\n' >> HYPO71PC.INP
+cat phase.tmp >> HYPO71PC.INP
 
-  echo "[INFO] creato HYPO71PC.INP (formato corretto)"
-  ls -l HYPO71PC.INP
+echo "[INFO] creato HYPO71PC.INP (phase list convertito)"
+ls -l HYPO71PC.INP
 
     # 2) file di controllo per stdin
     cat > hypo71.cmd << 'EOF'
