@@ -45,7 +45,7 @@ case "$mode" in
     fi
     ;;
 
-         hypo71)
+         
     hypo71)
   echo "[DEBUG] pwd=$(pwd)"
   echo "[DEBUG] contenuto job dir:"
