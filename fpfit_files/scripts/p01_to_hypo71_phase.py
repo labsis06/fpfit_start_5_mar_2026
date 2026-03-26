@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import re
 import sys
+from typing import Optional
 
 
-def build_phase_line(sta: str, pol: str, dt14: str, s_sec: str | None) -> str:
+def build_phase_line(sta: str, pol: str, dt14: str, s_sec: Optional[str]) -> str:
     """
     Costruisce una phase card HYP071 a colonne fisse.
 
