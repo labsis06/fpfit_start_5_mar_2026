@@ -123,6 +123,16 @@
       background: linear-gradient(120deg, var(--primary-dark), var(--primary));
     }
 
+hr {
+      border: 0;
+      clear:both;
+      display:block;
+      width: 96%;                
+      background-color:#333332;
+      height: 1px;
+      
+    }
+
     button:active { transform: translateY(0); }
   </style>
 </head>
@@ -153,24 +163,25 @@
 
     <form action="/run" method="post" enctype="multipart/form-data">
   <div>
-    <label for="h71_file">File diretto per FPFIT</label>
+    <label for="h71_file">Carica il file diretto per FPFIT</label>
     <input id="h71_file" type="file" name="h71_file">
     <p class="hint">
       Formati supportati: <code>.grid0.loc.h71</code>, <code>.loc.h71</code>, <code>.prt</code>
     </p>
   </div>
+ <hr>
 
+  <h3>Oppure carica i file .b01 e .p01</h3>
+ 
   <div>
-    <label for="p01_file">File P01 (opzionale)</label>
+    <label for="p01_file">File .p01</label>
     <input id="p01_file" type="file" name="p01_file">
   </div>
 
   <div>
-    <label for="b01_file">File B01 (opzionale)</label>
+    <label for="b01_file">File .b01</label>
     <input id="b01_file" type="file" name="b01_file">
-    <p class="hint">
-      Carica <code>.p01</code> e <code>.b01</code> insieme per passare da Hypo71 + flegrei.sta.
-    </p>
+    
   </div>
 
   <button type="submit">Esegui elaborazione</button>

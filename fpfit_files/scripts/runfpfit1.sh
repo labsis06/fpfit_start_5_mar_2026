@@ -3,16 +3,17 @@ set -e
 set -u
 set -o pipefail
 
-nome="${1:?Uso: $0 <evento_senza_estensione>}"
+mode="${1:?Uso: $0 <direct|hypo71> <evento_senza_estensione>}"
+nome="${2:?Uso: $0 <direct|hypo71> <evento_senza_estensione>}"
 
 FPFIT_DIR="/etc/software/fpfit"
+HYPO71_DIR="/etc/software/hypo71"
+HYPO71_EXE="/etc/software/hypo71/Hypo71PC"
 DATA_DIR="/etc/software/fpfit/dati"
 
-# Conda (solo per eseguire GMT senza activate)
 CONDA="/etc/software/miniconda/miniconda3/bin/conda"
 GMT_ENV="/srv/fpfitweb/conda-envs/gmt66"
 
-# Funzione helper: esegue GMT (non dipende dal PATH)
 gmt_run() {
   "$CONDA" run -p "$GMT_ENV" gmt "$@"
 }
@@ -29,15 +30,85 @@ if ! "$CONDA" run -p "$GMT_ENV" gmt --version >/dev/null 2>&1; then
   exit 2
 fi
 
-if [ ! -f "${nome}.grid0.loc.h71" ]; then
-  echo "ERRORE: file input mancante: ${nome}.grid0.loc.h71"
-  exit 2
-fi
+# --- prepara file.loc.h71 in base alla modalità scelta
+case "$mode" in
+  direct)
+    if [ -f "${nome}.grid0.loc.h71" ]; then
+      cp "${nome}.grid0.loc.h71" file.loc.h71
+    elif [ -f "${nome}.loc.h71" ]; then
+      cp "${nome}.loc.h71" file.loc.h71
+    elif [ -f "${nome}.prt" ]; then
+      cp "${nome}.prt" file.loc.h71
+    else
+      echo "ERRORE: nessun file diretto trovato per base ${nome}"
+      exit 2
+    fi
+    ;;
 
-# --- Input hypo71
-cp "${nome}.grid0.loc.h71" file.loc.h71
-# evita casi EOF “strani”
+         
+    hypo71)
+  echo "[DEBUG] pwd=$(pwd)"
+  echo "[DEBUG] contenuto job dir:"
+  ls -l
+
+  if [ ! -f "${nome}.p01" ]; then
+    echo "ERRORE: file input mancante: ${nome}.p01"
+    exit 2
+  fi
+
+  if [ ! -f "${HYPO71_DIR}/flegrei.sta" ]; then
+    echo "ERRORE: file stazioni non trovato: ${HYPO71_DIR}/flegrei.sta"
+    exit 2
+  fi
+
+  cp "${HYPO71_DIR}/flegrei.sta" HYPO71PC.INP
+
+python3 /etc/software/fpfit/scripts/p01_to_hypo71_phase.py \
+    "${nome}.p01" \
+    phase.tmp
+
+cat phase.tmp >> HYPO71PC.INP
+
+echo "[INFO] creato HYPO71PC.INP (phase list convertito)"
+ls -l HYPO71PC.INP
+
+    # 2) file di controllo per stdin
+    cat > hypo71.cmd << 'EOF'
+HYPO71PC.INP
+HYPO71PC.PRT
+HYPO71PC.PUN
+HYPO71PC.RES
+
+HYPO71PC.REL
+EOF
+
+    # 3) eseguo Hypo71
+    "${HYPO71_EXE}" < hypo71.cmd > hypo71.stdout 2> hypo71.stderr || true
+
+    # 4) recupero il file utile
+    if [ -f "HYPO71PC.PRT" ]; then
+      cp "HYPO71PC.PRT" file.loc.h71
+      echo "[INFO] trovato HYPO71PC.PRT"
+    else
+      echo "ERRORE: Hypo71 non ha prodotto HYPO71PC.PRT"
+      echo "----- hypo71.stdout -----"
+      cat hypo71.stdout 2>/dev/null || true
+      echo "----- hypo71.stderr -----"
+      cat hypo71.stderr 2>/dev/null || true
+      exit 2
+    fi
+    ;;
+
+  *)
+    echo "ERRORE: modalità non valida: $mode"
+    exit 2
+    ;;
+esac
+
+# evita casi EOF strani
 printf '\n' >> file.loc.h71
+
+
 
 # --- fpfit input
 cat > h71.inp <<'EOF'
