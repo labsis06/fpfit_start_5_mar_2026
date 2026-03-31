@@ -30,6 +30,25 @@ if ! "$CONDA" run -p "$GMT_ENV" gmt --version >/dev/null 2>&1; then
   exit 2
 fi
 
+
+clean_b01_to_pun() {
+  local src="$1"
+  awk '
+    {
+      gsub(/\r/, "")
+      gsub(/\<EV\>/, "")
+      gsub(/\<TRACES\>/, "")
+      gsub(/\<PHASES\>/, "")
+      gsub(/[[:space:]]+/, " ")
+      sub(/^ /, "")
+      sub(/ $/, "")
+      if (length($0) > 0) print
+    }
+  ' "$src"
+}
+
+
+
 b01_to_fixed_cards() {
   local b01="$1"
 
@@ -111,7 +130,7 @@ case "$mode" in
     fi
     ;;
 
-     hypo71)
+       hypo71)
     echo "[DEBUG] pwd=$(pwd)"
     echo "[DEBUG] contenuto job dir:"
     ls -l
@@ -134,13 +153,14 @@ case "$mode" in
     rm -f HYPO71PC.INP HYPO71PC.PRT HYPO71PC.PUN HYPO71PC.RES HYPO71PC.REL \
           phase.tmp fixed.tmp hypo71.cmd hypo71.stdout hypo71.stderr file.loc.h71
 
-    # base fissa
+    # ------------------------------------------------------------
+    # 1) Costruzione HYPO71PC.INP
+    # ------------------------------------------------------------
     cp "${HYPO71_DIR}/flegrei.sta" HYPO71PC.INP || {
       echo "ERRORE: impossibile copiare ${HYPO71_DIR}/flegrei.sta"
       exit 2
     }
 
-    # phase list dal .p01
     python3 /etc/software/fpfit/scripts/p01_to_hypo71_phase.py \
       "${nome}.p01" \
       phase.tmp || {
@@ -150,6 +170,8 @@ case "$mode" in
 
     echo "[DEBUG] prime righe phase.tmp"
     sed -n '1,10p' phase.tmp | cat -vet
+    echo "12345678901234567890123456789012345678901234567890"
+    sed -n '1,5p' phase.tmp
 
     cat phase.tmp >> HYPO71PC.INP || {
       echo "ERRORE: impossibile accodare phase.tmp"
@@ -176,7 +198,20 @@ case "$mode" in
     echo "[INFO] creato HYPO71PC.INP (phase list + fixed cards da b01)"
     ls -l HYPO71PC.INP
 
-    # file di controllo completo per Hypo71
+    # ------------------------------------------------------------
+    # 2) Costruzione HYPO71PC.PUN dal .b01 ripulito
+    # ------------------------------------------------------------
+    clean_b01_to_pun "${nome}.b01" > HYPO71PC.PUN || {
+      echo "ERRORE: impossibile creare HYPO71PC.PUN da ${nome}.b01"
+      exit 2
+    }
+
+    echo "[DEBUG] HYPO71PC.PUN ricavato da b01"
+    cat HYPO71PC.PUN | cat -vet
+
+    # ------------------------------------------------------------
+    # 3) File di controllo per Hypo71
+    # ------------------------------------------------------------
     cat > hypo71.cmd << 'EOF'
 HYPO71PC.INP
 HYPO71PC.PRT
@@ -189,17 +224,31 @@ EOF
     echo "[DEBUG] hypo71.cmd"
     cat hypo71.cmd | cat -vet
 
+    # ------------------------------------------------------------
+    # 4) Esecuzione Hypo71
+    # ------------------------------------------------------------
     "${HYPO71_EXE}" < hypo71.cmd > hypo71.stdout 2> hypo71.stderr || true
 
+    echo "[DEBUG] dimensioni file Hypo71 prodotti"
+    ls -l HYPO71PC.* 2>/dev/null || true
+
+    echo "[DEBUG] prime righe HYPO71PC.PRT"
+    head -n 120 HYPO71PC.PRT 2>/dev/null || true
+
+    echo "[DEBUG] hypo71.stdout"
+    cat hypo71.stdout 2>/dev/null || true
+
+    echo "[DEBUG] hypo71.stderr"
+    cat hypo71.stderr 2>/dev/null || true
+
+    # ------------------------------------------------------------
+    # 5) Recupero file utile per fpfit
+    # ------------------------------------------------------------
     if [ -f "HYPO71PC.PRT" ]; then
       cp "HYPO71PC.PRT" file.loc.h71
       echo "[INFO] trovato HYPO71PC.PRT"
     else
       echo "ERRORE: Hypo71 non ha prodotto HYPO71PC.PRT"
-      echo "----- hypo71.stdout -----"
-      cat hypo71.stdout 2>/dev/null || true
-      echo "----- hypo71.stderr -----"
-      cat hypo71.stderr 2>/dev/null || true
       exit 2
     fi
     ;;
