@@ -18,6 +18,75 @@ gmt_run() {
   "$CONDA" run -p "$GMT_ENV" gmt "$@"
 }
 
+b01_to_fixed_cards() {
+  local b01="$1"
+
+  awk '
+    NR == 1 { next }
+    NF == 0 { next }
+
+    {
+      line = $0
+      gsub(/\r/, "", line)
+
+      # toglie eventuali etichette testuali
+      gsub(/EV/, "", line)
+      gsub(/TRACES/, "", line)
+      gsub(/PHASES/, "", line)
+
+      # normalizza cose tipo "14- 8.69" -> "14-8.69"
+      gsub(/- +/, "-", line)
+
+      # normalizza spazi multipli
+      gsub(/[[:space:]]+/, " ", line)
+      sub(/^ /, "", line)
+      sub(/ $/, "", line)
+
+      split(line, a, " ")
+
+      # atteso circa:
+      # a[1]=YYMMDD
+      # a[2]=HHMM
+      # a[3]=SEC
+      # a[4]=LAT es. 40-49.88
+      # a[5]=LON es. 14-8.69
+      # a[6]=DEPTH
+      hhmm = a[2]
+      sec  = a[3]
+      lat  = a[4]
+      lon  = a[5]
+      dep  = a[6]
+
+      split(lat, la, "-")
+      split(lon, lo, "-")
+
+      minute = substr(hhmm, 3, 2) + 0
+
+      # instruction card:
+      # KNST=6  -> usa S + first motion
+      # INST=9  -> fixed hypocenter da card successiva
+      printf "%17s69\n", ""
+
+      # additional fixed card:
+      # ORG1 ORG2 LAT1 LAT2 LON1 LON2 Z
+      printf "%5d%5.2f%5d%5.2f%5d%5.2f%5.2f\n",
+             minute,
+             sec + 0,
+             la[1] + 0,
+             la[2] + 0,
+             lo[1] + 0,
+             lo[2] + 0,
+             dep + 0
+      exit
+    }
+  ' "$b01"
+}
+
+
+
+
+
+
 # --- Check rapidi
 if [ ! -x "$CONDA" ]; then
   echo "ERRORE: conda non trovato/eseguibile in: $CONDA"
