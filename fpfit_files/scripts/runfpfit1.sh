@@ -31,87 +31,7 @@ if ! "$CONDA" run -p "$GMT_ENV" gmt --version >/dev/null 2>&1; then
 fi
 
 
-clean_b01_to_pun() {
-  local src="$1"
-  awk '
-    {
-      gsub(/\r/, "")
-      gsub(/\<EV\>/, "")
-      gsub(/\<TRACES\>/, "")
-      gsub(/\<PHASES\>/, "")
-      gsub(/[[:space:]]+/, " ")
-      sub(/^ /, "")
-      sub(/ $/, "")
-      if (length($0) > 0) print
-    }
-  ' "$src"
-}
 
-
-
-b01_to_fixed_cards() {
-  local b01="$1"
-
-  awk '
-    NR == 1 { next }
-    NF == 0 { next }
-
-    {
-      line = $0
-      gsub(/\r/, "", line)
-
-      # toglie eventuali etichette testuali
-      gsub(/EV/, "", line)
-      gsub(/TRACES/, "", line)
-      gsub(/PHASES/, "", line)
-
-      # normalizza cose tipo "14- 8.69" -> "14-8.69"
-      gsub(/- +/, "-", line)
-
-      # normalizza spazi multipli
-      gsub(/[[:space:]]+/, " ", line)
-      sub(/^ /, "", line)
-      sub(/ $/, "", line)
-
-      split(line, a, " ")
-
-      # atteso circa:
-      # a[1]=YYMMDD
-      # a[2]=HHMM
-      # a[3]=SEC
-      # a[4]=LAT es. 40-49.88
-      # a[5]=LON es. 14-8.69
-      # a[6]=DEPTH
-      hhmm = a[2]
-      sec  = a[3]
-      lat  = a[4]
-      lon  = a[5]
-      dep  = a[6]
-
-      split(lat, la, "-")
-      split(lon, lo, "-")
-
-      minute = substr(hhmm, 3, 2) + 0
-
-      # instruction card:
-      # KNST=6  -> usa S + first motion
-      # INST=9  -> fixed hypocenter da card successiva
-      printf "%17s69\n", ""
-
-      # additional fixed card:
-      # ORG1 ORG2 LAT1 LAT2 LON1 LON2 Z
-      printf "%5d%5.2f%5d%5.2f%5d%5.2f%5.2f\n",
-             minute,
-             sec + 0,
-             la[1] + 0,
-             la[2] + 0,
-             lo[1] + 0,
-             lo[2] + 0,
-             dep + 0
-      exit
-    }
-  ' "$b01"
-}
 
 
 
@@ -130,7 +50,7 @@ case "$mode" in
     fi
     ;;
 
-       hypo71)
+         hypo71)
     echo "[DEBUG] pwd=$(pwd)"
     echo "[DEBUG] contenuto job dir:"
     ls -l
@@ -199,18 +119,7 @@ case "$mode" in
     ls -l HYPO71PC.INP
 
     # ------------------------------------------------------------
-    # 2) Costruzione HYPO71PC.PUN dal .b01 ripulito
-    # ------------------------------------------------------------
-    clean_b01_to_pun "${nome}.b01" > HYPO71PC.PUN || {
-      echo "ERRORE: impossibile creare HYPO71PC.PUN da ${nome}.b01"
-      exit 2
-    }
-
-    echo "[DEBUG] HYPO71PC.PUN ricavato da b01"
-    cat HYPO71PC.PUN | cat -vet
-
-    # ------------------------------------------------------------
-    # 3) File di controllo per Hypo71
+    # 2) File di controllo per Hypo71
     # ------------------------------------------------------------
     cat > hypo71.cmd << 'EOF'
 HYPO71PC.INP
@@ -225,7 +134,7 @@ EOF
     cat hypo71.cmd | cat -vet
 
     # ------------------------------------------------------------
-    # 4) Esecuzione Hypo71
+    # 3) Esecuzione Hypo71
     # ------------------------------------------------------------
     "${HYPO71_EXE}" < hypo71.cmd > hypo71.stdout 2> hypo71.stderr || true
 
@@ -235,6 +144,9 @@ EOF
     echo "[DEBUG] prime righe HYPO71PC.PRT"
     head -n 120 HYPO71PC.PRT 2>/dev/null || true
 
+    echo "[DEBUG] contenuto HYPO71PC.PUN"
+    cat HYPO71PC.PUN 2>/dev/null || true
+
     echo "[DEBUG] hypo71.stdout"
     cat hypo71.stdout 2>/dev/null || true
 
@@ -242,7 +154,7 @@ EOF
     cat hypo71.stderr 2>/dev/null || true
 
     # ------------------------------------------------------------
-    # 5) Recupero file utile per fpfit
+    # 4) Recupero file utile per fpfit
     # ------------------------------------------------------------
     if [ -f "HYPO71PC.PRT" ]; then
       cp "HYPO71PC.PRT" file.loc.h71
@@ -251,11 +163,6 @@ EOF
       echo "ERRORE: Hypo71 non ha prodotto HYPO71PC.PRT"
       exit 2
     fi
-    ;;
-
-  *)
-    echo "ERRORE: modalità non valida: $mode"
-    exit 2
     ;;
 esac
 
