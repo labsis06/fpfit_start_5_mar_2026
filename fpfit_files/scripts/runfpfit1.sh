@@ -121,7 +121,7 @@ EOF
     # ------------------------------------------------------------
     # 4) Recupero file utile per fpfit
     # ------------------------------------------------------------
-   if [ -f "HYPO71PC.PRT" ]; then
+if [ -f "HYPO71PC.PRT" ]; then
   echo "[INFO] trovato HYPO71PC.PRT"
 
   python3 /etc/software/fpfit/scripts/fix_hypo71_prt_for_fpfit.py \
@@ -133,9 +133,9 @@ EOF
 
   echo "[INFO] creato file.loc.h71 ripulito per fpfit"
 else
-      echo "ERRORE: Hypo71 non ha prodotto HYPO71PC.PRT"
-      exit 2
-    fi
+  echo "ERRORE: Hypo71 non ha prodotto HYPO71PC.PRT"
+  exit 2
+fi
     ;;
 esac
 
