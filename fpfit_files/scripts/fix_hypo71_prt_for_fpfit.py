@@ -60,6 +60,13 @@ while i < len(lines):
     if sep_re.match(line) or junk_num_re.match(line):
         i += 1
         continue
+     
+    # header della tabella: shift di 1 carattere a destra
+    if "STN" in line and "DIST" in line and "AZM" in line:
+        out.append(" " + line.rstrip())
+        i += 1
+        continue 
+
 
     # se non è una riga stazione, scarta
     if not station_re.match(line):
