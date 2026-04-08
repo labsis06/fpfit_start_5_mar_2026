@@ -20,8 +20,8 @@ with open(src, "r", encoding="utf-8", errors="ignore") as f:
     lines = [x.rstrip("\n") for x in f]
 
 out = []
-skip_block = False
-in_event_section = False
+skip_header_block = False
+in_station_section = False
 i = 0
 
 while i < len(lines):
@@ -29,23 +29,20 @@ while i < len(lines):
 
     # inizio blocco da eliminare
     if "Date   Heure Minute Seconde" in line:
-        skip_block = True
+        skip_header_block = True
         i += 1
         continue
 
-    # mentre salto il blocco, cerco la riga header evento STN DIST ...
-    if skip_block:
-        if "STN" in line and "DIST" in line and "AZM" in line:
-            skip_block = False
-            in_event_section = True
-            out.append(" " + line.rstrip())   # shift di 1 carattere a destra
-            i += 1
-            continue
+    # elimina fino alla riga "Sta   Dist ..."
+    if skip_header_block:
+        if "Sta   Dist" in line and "Az" in line and "Inc" in line:
+            skip_header_block = False
+            in_station_section = True
         i += 1
         continue
 
     # prima del blocco da eliminare: conserva tutto
-    if not in_event_section:
+    if not in_station_section:
         out.append(line)
         i += 1
         continue
@@ -90,8 +87,9 @@ while i < len(lines):
     else:
         merged = p_line
 
-    # shift di 1 carattere a destra anche per le righe stazione
-    out.append(" " + merged)
+    # shift di 1 carattere a destra
+    merged = " " + merged
+    out.append(merged)
 
     i += 1
 
