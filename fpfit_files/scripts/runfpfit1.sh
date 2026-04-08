@@ -123,24 +123,34 @@ EOF
     # ------------------------------------------------------------
 
     if [ -f "HYPO71PC.PRT" ]; then
-     echo "[INFO] trovato HYPO71PC.PRT"
+      echo "[INFO] trovato HYPO71PC.PRT"
 
-     python3 /etc/software/fpfit/scripts/fix_hypo71_prt_for_fpfit.py \
-    "HYPO71PC.PRT" \
-    "file.loc.h71" || {
-    echo "ERRORE: conversione HYPO71PC.PRT -> file.loc.h71 fallita"
+      python3 /etc/software/fpfit/scripts/fix_hypo71_prt_for_fpfit.py \
+       "HYPO71PC.PRT" \
+       "HYPO71PC.PRT.fixed" || {
+      echo "ERRORE: conversione HYPO71PC.PRT -> HYPO71PC.PRT.fixed fallita"
+      exit 2
+    }
+
+     mv HYPO71PC.PRT.fixed HYPO71PC.PRT || {
+     echo "ERRORE: impossibile sostituire HYPO71PC.PRT"
+     exit 2
+    }
+
+    cp HYPO71PC.PRT file.loc.h71 || {
+    echo "ERRORE: impossibile copiare HYPO71PC.PRT in file.loc.h71"
     exit 2
-  }
+    }
 
-    echo "[INFO] creato file.loc.h71 ripulito per fpfit"
-    echo "[DEBUG] prime righe file.loc.h71"
-    grep -A1 '^CPIS\|^STH\|^CAAM' file.loc.h71 2>/dev/null || true
-   else
+    echo "[INFO] HYPO71PC.PRT riscritto nel formato fpfit"
+    echo "[DEBUG] prime righe HYPO71PC.PRT riscritto"
+    grep -A1 '^CPIS\|^STH\|^CAAM' HYPO71PC.PRT 2>/dev/null || true
+  else
     echo "ERRORE: Hypo71 non ha prodotto HYPO71PC.PRT"
     exit 2
-   fi
+  fi
 
-esac
+
 
 # evita casi EOF strani
 printf '\n' >> file.loc.h71
