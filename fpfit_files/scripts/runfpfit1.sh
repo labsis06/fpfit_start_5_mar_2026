@@ -149,7 +149,7 @@ EOF
     echo "ERRORE: Hypo71 non ha prodotto HYPO71PC.PRT"
     exit 2
   fi
-
+esac
 
 
 # evita casi EOF strani
