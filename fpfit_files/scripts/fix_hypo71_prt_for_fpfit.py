@@ -63,7 +63,7 @@ while i < len(lines):
      
     # header della tabella: shift di 1 carattere a destra
     if "STN" in line and "DIST" in line and "AZM" in line:
-        out.append(" " + line.rstrip())
+        out.append("  " + line.rstrip())
         i += 1
         continue 
 
