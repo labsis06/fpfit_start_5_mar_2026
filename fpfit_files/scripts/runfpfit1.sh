@@ -121,7 +121,7 @@ EOF
     # ------------------------------------------------------------
     # 4) Recupero file utile per fpfit
     # ------------------------------------------------------------
-<<<<<<< HEAD
+
     if [ -f "HYPO71PC.PRT" ]; then
      echo "[INFO] trovato HYPO71PC.PRT"
 
@@ -139,7 +139,7 @@ EOF
     echo "ERRORE: Hypo71 non ha prodotto HYPO71PC.PRT"
     exit 2
    fi
-=======
+
 esac
 
 # evita casi EOF strani
