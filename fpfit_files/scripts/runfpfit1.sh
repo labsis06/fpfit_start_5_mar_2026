@@ -121,22 +121,25 @@ EOF
     # ------------------------------------------------------------
     # 4) Recupero file utile per fpfit
     # ------------------------------------------------------------
-if [ -f "HYPO71PC.PRT" ]; then
-  echo "[INFO] trovato HYPO71PC.PRT"
+<<<<<<< HEAD
+    if [ -f "HYPO71PC.PRT" ]; then
+     echo "[INFO] trovato HYPO71PC.PRT"
 
-  python3 /etc/software/fpfit/scripts/fix_hypo71_prt_for_fpfit.py \
+     python3 /etc/software/fpfit/scripts/fix_hypo71_prt_for_fpfit.py \
     "HYPO71PC.PRT" \
     "file.loc.h71" || {
     echo "ERRORE: conversione HYPO71PC.PRT -> file.loc.h71 fallita"
     exit 2
   }
 
-  echo "[INFO] creato file.loc.h71 ripulito per fpfit"
-else
-  echo "ERRORE: Hypo71 non ha prodotto HYPO71PC.PRT"
-  exit 2
-fi
-    ;;
+    echo "[INFO] creato file.loc.h71 ripulito per fpfit"
+    echo "[DEBUG] prime righe file.loc.h71"
+    grep -A1 '^CPIS\|^STH\|^CAAM' file.loc.h71 2>/dev/null || true
+   else
+    echo "ERRORE: Hypo71 non ha prodotto HYPO71PC.PRT"
+    exit 2
+   fi
+=======
 esac
 
 # evita casi EOF strani
