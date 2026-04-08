@@ -20,34 +20,37 @@ with open(src, "r", encoding="utf-8", errors="ignore") as f:
     lines = [x.rstrip("\n") for x in f]
 
 out = []
-in_station_block = False
+skip_header_block = False
+in_station_section = False
 i = 0
 
 while i < len(lines):
     line = lines[i]
 
-    # finche non arrivo alla tabella stazioni, non copio niente
-    if not in_station_block:
-        if "Sta   Dist  Az Inc P" in line:
-            in_station_block = True
+    # inizio blocco da eliminare
+    if "Date   Heure Minute Seconde" in line:
+        skip_header_block = True
+        i += 1
+        continue
+
+    # elimina fino alla riga "Sta   Dist ..."
+    if skip_header_block:
+        if "Sta   Dist" in line and "Az" in line and "Inc" in line:
+            skip_header_block = False
+            in_station_section = True
+        i += 1
+        continue
+
+    # prima del blocco da eliminare: conserva tutto
+    if not in_station_section:
+        out.append(line)
         i += 1
         continue
 
     # fine blocco evento
     if line.strip().startswith("***"):
+        out.append(line)
         break
-
-    # elimina header e righe descrittive
-    if (
-        "Date   Heure Minute Seconde" in line
-        or "Latitude" in line
-        or "Longitude" in line
-        or "Profondeur / Ref" in line
-        or "RMS" in line
-        or "Sta   Dist  Az Inc P" in line
-    ):
-        i += 1
-        continue
 
     # elimina righe vuote, separatori e blocchi numerici
     if not line.strip():
@@ -73,7 +76,6 @@ while i < len(lines):
 
     if s_line:
         parts = s_line.split()
-        # atteso: S sec calc oc wt
         if len(parts) >= 5:
             merged = (
                 p_line
