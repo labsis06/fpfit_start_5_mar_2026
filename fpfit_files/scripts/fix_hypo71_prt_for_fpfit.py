@@ -90,11 +90,11 @@ while i < len(lines):
 
     out.append(merged)
 
-    i += 1
-    continue
+i += 1
+continue
 
     # elimina header
-    if (
+if (
         "Date" in line or
         "Latitude" in line or
         "Longitude" in line or
@@ -102,7 +102,8 @@ while i < len(lines):
         "RMS" in line or
         "Sta   Dist" in line
     ):
-        i += 1
+    
+ i += 1
         
 
 with open(dst, "w", encoding="utf-8") as f:
