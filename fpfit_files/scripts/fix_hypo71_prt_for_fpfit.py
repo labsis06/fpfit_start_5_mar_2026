@@ -66,39 +66,44 @@ while i < len(lines):
     p_line = line.rstrip()
 
     # guarda se la riga successiva è una riga S
+    # cerca riga S
     s_line = ""
-    if i + 1 < len(lines):
-        nxt = lines[i + 1]
-        if sline_re.match(nxt):
-            s_line = nxt
-            i += 1
-
-    # senza S: conserva la riga P così com'è
-    if not s_line:
-        out.append(p_line)
+    if i + 1 < len(lines) and re.match(r'^\s+S\s+', lines[i+1]):
+        s_line = lines[i+1].strip()
         i += 1
-        continue
 
-    # parse della riga S
-    parts = s_line.split()
-    # atteso: S sec calc oc wt
-    if len(parts) >= 5 and parts[0] == "S":
-        s_sec  = normalize_num(parts[1]).rjust(5)
-        s_calc = normalize_num(parts[2]).rjust(5)
-        s_oc   = normalize_num(parts[3]).rjust(5)
-        s_wt   = normalize_num(parts[4]).rjust(5)
-
-        # costruisce UNA SOLA riga, accodando la parte S in coda
-        merged = (
-            p_line.rstrip()
-            + "                    S         "
-            + f"{s_sec} {s_calc} {s_oc} {s_wt}"
-        )
-        out.append(merged)
+    if s_line:
+        parts = s_line.split()
+        if len(parts) >= 5:
+            merged = (
+                p_line
+                + "                    S         "
+                + f"{parts[1]} {parts[2]} {parts[3]} {parts[4]}"
+            )
+        else:
+            merged = p_line
     else:
-        out.append(p_line)
+        merged = p_line
+
+    # SHIFT DI 1 CARATTERE A DESTRA
+    merged = " " + merged
+
+    out.append(merged)
 
     i += 1
+    continue
+
+    # elimina header
+    if (
+        "Date" in line or
+        "Latitude" in line or
+        "Longitude" in line or
+        "Profondeur" in line or
+        "RMS" in line or
+        "Sta   Dist" in line
+    ):
+        i += 1
+        
 
 with open(dst, "w", encoding="utf-8") as f:
     for line in out:
