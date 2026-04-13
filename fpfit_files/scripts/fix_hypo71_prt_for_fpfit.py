@@ -19,6 +19,17 @@ sline_re = re.compile(r'^\s+S\s+')
 with open(src, "r", encoding="utf-8", errors="ignore") as f:
     lines = [x.rstrip("\n") for x in f]
 
+
+target_header = (
+    "STN  DIST AZM AIN PRMK HRMN P-SEC TPOBS TPCAL DLY/H1 "
+    "P-RES P-WT AMX PRX CALX K XMAG RMK FMP FMAG SMK S-SEC "
+    "TSOBS S-RES S-WT    DT"
+)
+
+for idx, line in enumerate(lines):
+    if line.strip() == target_header:
+        lines[idx] = " " + line.rstrip()
+
 out = []
 skip_header_block = False
 in_station_section = False
@@ -61,18 +72,6 @@ while i < len(lines):
         i += 1
         continue
     
-    # intercetta header STN DIST e shiftalo
-    if line.strip().startswith("STN  DIST AZM AIN"):
-       out.append(" " + line.rstrip())
-       i += 1
-       continue
-
-    # header STN DIST ... : conservalo e shiftalo di 1 carattere a destra
-    if "STN" in line and "DIST" in line and "AZM" in line and "AIN" in line:
-        out.append(" " + line.rstrip())
-        i += 1
-        continue
-
     # se non è una riga stazione, scarta
     if not station_re.match(line):
         i += 1
@@ -99,11 +98,7 @@ while i < len(lines):
     else:
         merged = p_line
 
-    # shift di 1 carattere a destra
-    merged = " " + merged
-    out.append(merged)
-
-    i += 1
+    
 
 with open(dst, "w", encoding="utf-8") as f:
     for line in out:
