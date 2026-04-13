@@ -58,10 +58,11 @@ while i < len(lines):
         i += 1
         continue
 
-    # fine blocco evento
     if line.strip().startswith("***"):
-        out.append(line)
-        break
+       out.append(line)
+       in_station_section = False
+       i += 1
+       continue
 
     # elimina righe vuote, separatori e blocchi numerici
     if not line.strip():
@@ -110,12 +111,9 @@ while i < len(lines):
     else:
         merged = p_line
 
-    # shift di 1 carattere a destra
-    merged = " " + merged
     out.append(merged)
 
-    i += 1
-
+    
 with open(dst, "w", encoding="utf-8") as f:
     for line in out:
         f.write(line.rstrip() + "\n")
