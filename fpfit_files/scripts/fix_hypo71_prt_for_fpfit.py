@@ -98,6 +98,8 @@ while i < len(lines):
     else:
         merged = p_line
 
+    out.append(merged)
+
     i += 1
 
 with open(dst, "w", encoding="utf-8") as f:
