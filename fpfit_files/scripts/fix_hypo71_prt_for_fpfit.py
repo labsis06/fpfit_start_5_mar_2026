@@ -72,18 +72,6 @@ while i < len(lines):
         i += 1
         continue
     
-    # intercetta header STN DIST e shiftalo
-    if line.strip().startswith("STN  DIST AZM AIN"):
-       out.append(" " + line.rstrip())
-       i += 1
-       continue
-
-    # header STN DIST ... : conservalo e shiftalo di 1 carattere a destra
-    if "STN" in line and "DIST" in line and "AZM" in line and "AIN" in line:
-        out.append(" " + line.rstrip())
-        i += 1
-        continue
-
     # se non è una riga stazione, scarta
     if not station_re.match(line):
         i += 1
@@ -109,10 +97,6 @@ while i < len(lines):
             merged = p_line
     else:
         merged = p_line
-
-    # shift di 1 carattere a destra
-    merged = " " + merged
-    out.append(merged)
 
     i += 1
 
