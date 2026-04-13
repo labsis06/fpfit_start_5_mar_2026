@@ -99,7 +99,11 @@ while i < len(lines):
     else:
         merged = p_line
 
+    # shift di 1 carattere a destra
+    merged = " " + merged
     out.append(merged)
+    i += 1
+
 
     
 with open(dst, "w", encoding="utf-8") as f:
