@@ -13,9 +13,8 @@ from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 from fastapi.staticfiles import StaticFiles
 
-app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="/srv/fpfitweb/static"), name="static")
+
 
 APP_ROOT = Path("/srv/fpfitweb")
 JOBS_DIR = APP_ROOT / "jobs"
@@ -29,6 +28,7 @@ SAFE_BASE_RE = re.compile(r"^[A-Za-z0-9._-]{1,200}$")
 TIMEOUT = 300  # secondi
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="/srv/fpfitweb/static"), name="static")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 
