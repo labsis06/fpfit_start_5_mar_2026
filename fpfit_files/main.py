@@ -11,6 +11,9 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
+from fastapi.staticfiles import StaticFiles
+
+app.mount("/static", StaticFiles(directory="/srv/fpfitweb/static"), name="static")
 
 APP_ROOT = Path("/srv/fpfitweb")
 JOBS_DIR = APP_ROOT / "jobs"
