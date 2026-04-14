@@ -13,6 +13,8 @@ from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 from fastapi.staticfiles import StaticFiles
 
+app = FastAPI()
+
 app.mount("/static", StaticFiles(directory="/srv/fpfitweb/static"), name="static")
 
 APP_ROOT = Path("/srv/fpfitweb")
