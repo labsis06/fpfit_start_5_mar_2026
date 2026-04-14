@@ -254,7 +254,7 @@ fi
 # fpfit2gmt produce: lat lon depth strike dip rake ...
 # lon esce NEGATIVA (es: -14.1143) ma la regione è su lon POSITIVE (14.x)
 # Quindi correggo: lon_corr = -lon
-# Inoltre psmeca in convenzione "aki" vuole anche una magnitudine: metto 5 come valore costante.
+# Inoltre psmeca in convenzione "aki" vuole anche una magnitudo: metto 5 come valore costante.
 awk 'NF>=6 { printf "%.6f %.6f %.3f %.1f %.1f %.1f %.1f\n", -$2, $1, $3, $4, $5, $6, 5.0 }' "$MECA_DAT" > "$MECA_PSMECA"
 
 if [ ! -s "$MECA_PSMECA" ]; then
