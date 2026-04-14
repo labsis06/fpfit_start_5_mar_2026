@@ -3,19 +3,21 @@ set -e
 set -u
 set -o pipefail
 
-nome="${1:?Uso: $0 <evento_senza_estensione>}"
+mode="${1:?Uso: $0 <direct|hypo71> <evento_senza_estensione>}"
+nome="${2:?Uso: $0 <direct|hypo71> <evento_senza_estensione>}"
 
 FPFIT_DIR="/etc/software/fpfit"
+HYPO71_DIR="/etc/software/hypo71"
+HYPO71_EXE="/etc/software/hypo71/Hypo71PC"
 DATA_DIR="/etc/software/fpfit/dati"
 
-# Conda (solo per eseguire GMT senza activate)
 CONDA="/etc/software/miniconda/miniconda3/bin/conda"
 GMT_ENV="/srv/fpfitweb/conda-envs/gmt66"
 
-# Funzione helper: esegue GMT (non dipende dal PATH)
 gmt_run() {
   "$CONDA" run -p "$GMT_ENV" gmt "$@"
 }
+
 
 # --- Check rapidi
 if [ ! -x "$CONDA" ]; then
@@ -29,15 +31,131 @@ if ! "$CONDA" run -p "$GMT_ENV" gmt --version >/dev/null 2>&1; then
   exit 2
 fi
 
-if [ ! -f "${nome}.grid0.loc.h71" ]; then
-  echo "ERRORE: file input mancante: ${nome}.grid0.loc.h71"
-  exit 2
-fi
+# --- prepara file.loc.h71 in base alla modalità scelta
+case "$mode" in
+  direct)
+    if [ -f "${nome}.grid0.loc.h71" ]; then
+      cp "${nome}.grid0.loc.h71" file.loc.h71
+    elif [ -f "${nome}.loc.h71" ]; then
+      cp "${nome}.loc.h71" file.loc.h71
+    elif [ -f "${nome}.prt" ]; then
+      cp "${nome}.prt" file.loc.h71
+    else
+      echo "ERRORE: nessun file diretto trovato per base ${nome}"
+      exit 2
+    fi
+    ;;
 
-# --- Input hypo71
-cp "${nome}.grid0.loc.h71" file.loc.h71
-# evita casi EOF “strani”
+           hypo71)
+    echo "[DEBUG] pwd=$(pwd)"
+    echo "[DEBUG] contenuto job dir:"
+    ls -l
+
+    if [ ! -f "${nome}.p01" ]; then
+      echo "ERRORE: file input mancante: ${nome}.p01"
+      exit 2
+    fi
+
+    if [ ! -f "${HYPO71_DIR}/flegrei.sta" ]; then
+      echo "ERRORE: file stazioni non trovato: ${HYPO71_DIR}/flegrei.sta"
+      exit 2
+    fi
+
+    rm -f HYPO71PC.INP HYPO71PC.PRT HYPO71PC.PUN HYPO71PC.RES HYPO71PC.REL \
+          hypo71.cmd hypo71.stdout hypo71.stderr file.loc.h71
+
+    # ------------------------------------------------------------
+    # 1) Costruzione HYPO71PC.INP = flegrei.sta + p01 tale e quale
+    # ------------------------------------------------------------
+    cp "${HYPO71_DIR}/flegrei.sta" HYPO71PC.INP || {
+      echo "ERRORE: impossibile copiare ${HYPO71_DIR}/flegrei.sta"
+      exit 2
+    }
+
+    cat "${nome}.p01" >> HYPO71PC.INP || {
+      echo "ERRORE: impossibile accodare ${nome}.p01"
+      exit 2
+    }
+
+    echo "[DEBUG] ultime righe del .p01 accodato"
+    tail -n 12 "${nome}.p01" | cat -vet
+
+    echo "[INFO] creato HYPO71PC.INP = flegrei.sta + ${nome}.p01"
+    ls -l HYPO71PC.INP
+
+    # ------------------------------------------------------------
+    # 2) File di controllo per Hypo71
+    # ------------------------------------------------------------
+    cat > hypo71.cmd << 'EOF'
+HYPO71PC.INP
+HYPO71PC.PRT
+HYPO71PC.PUN
+HYPO71PC.RES
+
+HYPO71PC.REL
+EOF
+
+    echo "[DEBUG] hypo71.cmd"
+    cat hypo71.cmd | cat -vet
+
+    # ------------------------------------------------------------
+    # 3) Esecuzione Hypo71
+    # ------------------------------------------------------------
+    "${HYPO71_EXE}" < hypo71.cmd > hypo71.stdout 2> hypo71.stderr || true
+
+    echo "[DEBUG] dimensioni file Hypo71 prodotti"
+    ls -l HYPO71PC.* 2>/dev/null || true
+
+    echo "[DEBUG] prime righe HYPO71PC.PRT"
+    head -n 120 HYPO71PC.PRT 2>/dev/null || true
+
+    echo "[DEBUG] contenuto HYPO71PC.PUN"
+    cat HYPO71PC.PUN 2>/dev/null || true
+
+    echo "[DEBUG] hypo71.stdout"
+    cat hypo71.stdout 2>/dev/null || true
+
+    echo "[DEBUG] hypo71.stderr"
+    cat hypo71.stderr 2>/dev/null || true
+
+    # ------------------------------------------------------------
+    # 4) Recupero file utile per fpfit
+    # ------------------------------------------------------------
+
+    if [ -f "HYPO71PC.PRT" ]; then
+      echo "[INFO] trovato HYPO71PC.PRT"
+
+      python3 /etc/software/fpfit/scripts/fix_hypo71_prt_for_fpfit.py \
+       "HYPO71PC.PRT" \
+       "HYPO71PC.PRT.fixed" || {
+      echo "ERRORE: conversione HYPO71PC.PRT -> HYPO71PC.PRT.fixed fallita"
+      exit 2
+    }
+
+     mv HYPO71PC.PRT.fixed HYPO71PC.PRT || {
+     echo "ERRORE: impossibile sostituire HYPO71PC.PRT"
+     exit 2
+    }
+
+    cp HYPO71PC.PRT file.loc.h71 || {
+    echo "ERRORE: impossibile copiare HYPO71PC.PRT in file.loc.h71"
+    exit 2
+    }
+
+    echo "[INFO] HYPO71PC.PRT riscritto nel formato fpfit"
+    echo "[DEBUG] prime righe HYPO71PC.PRT riscritto"
+    grep -A1 '^CPIS\|^STH\|^CAAM' HYPO71PC.PRT 2>/dev/null || true
+  else
+    echo "ERRORE: Hypo71 non ha prodotto HYPO71PC.PRT"
+    exit 2
+  fi
+esac
+
+
+# evita casi EOF strani
 printf '\n' >> file.loc.h71
+
+
 
 # --- fpfit input
 cat > h71.inp <<'EOF'
