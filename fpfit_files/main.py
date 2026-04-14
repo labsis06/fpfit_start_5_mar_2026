@@ -67,24 +67,20 @@ async def run(
     request: Request,
     h71_file: Optional[UploadFile] = File(None),
     p01_file: Optional[UploadFile] = File(None),
-    b01_file: Optional[UploadFile] = File(None),
 ):
     if not RUN_SCRIPT.exists():
         raise HTTPException(500, f"Script non trovato: {RUN_SCRIPT}")
 
     # modalità:
     # 1) file diretto: .loc.h71 / .grid0.loc.h71 / .prt
-    # 2) coppia: .p01 + .b01
+    # 2) file .p01
     direct_mode = h71_file is not None and (h71_file.filename or "").strip() != ""
-    pair_mode = (
-        p01_file is not None and (p01_file.filename or "").strip() != "" and
-        b01_file is not None and (b01_file.filename or "").strip() != ""
-    )
+    pair_mode = p01_file is not None and (p01_file.filename or "").strip() != ""
 
     if direct_mode and pair_mode:
-        raise HTTPException(400, "Carica o un file diretto oppure la coppia .p01 + .b01, non entrambi.")
+        raise HTTPException(400, "Carica o un file diretto oppure il file .p01, non entrambi.")
     if not direct_mode and not pair_mode:
-        raise HTTPException(400, "Carica un file .loc.h71/.grid0.loc.h71/.prt oppure la coppia .p01 + .b01.")
+        raise HTTPException(400, "Carica un file .loc.h71/.grid0.loc.h71/.prt oppure il file .p01.")
 
     job_id = uuid4().hex
     job_dir = JOBS_DIR / job_id
@@ -117,24 +113,14 @@ async def run(
 
         else:
             p01_name = p01_file.filename or "input.p01"
-            b01_name = b01_file.filename or "input.b01"
-
-            base_p01 = base_from_pair_filename(p01_name, ".p01")
-            base_b01 = base_from_pair_filename(b01_name, ".b01")
-
-            if base_p01 != base_b01:
-                raise HTTPException(400, "I file .p01 e .b01 devono avere lo stesso nome base.")
-
-            base = base_p01
+            base = base_from_pair_filename(p01_name, ".p01")
 
             p01_data = await p01_file.read()
-            b01_data = await b01_file.read()
 
-            if len(p01_data) > 50 * 1024 * 1024 or len(b01_data) > 50 * 1024 * 1024:
+            if len(p01_data) > 50 * 1024 * 1024:
                 raise HTTPException(400, "File troppo grande (>50MB).")
 
             (job_dir / f"{base}.p01").write_bytes(p01_data)
-            (job_dir / f"{base}.b01").write_bytes(b01_data)
 
             mode = "hypo71"
 
