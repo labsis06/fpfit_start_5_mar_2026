@@ -1,0 +1,203 @@
+BLOCCO GENERALE
+cat > h71.inp <<'EOF'
+...
+EOF
+
+👉 crea il file h71.inp
+👉 che contiene tutti i comandi per FPFIT
+
+📄 RIGA PER RIGA
+🔹 TITOLO
+ttl   1 'none'
+ttl = titolo
+1 = numero di righe di titolo
+'none' = testo
+
+👉 solo decorativo
+
+🔹 FILE DI INPUT
+hyp 'file.loc.h71'
+
+👉 file con:
+
+stazioni
+polarità P+/P−
+angoli
+
+👉 è il file prodotto da Hypo71 (che hai costruito tu)
+
+🔹 FILE DI OUTPUT
+out 'fpfit.out'
+
+👉 report completo (diagnostica)
+
+pol 'fpfit.pol'
+
+👉 lista delle polarità usate
+
+sum 'fpfit.fps'
+
+👉 ⭐ RISULTATO FINALE (strike, dip, rake)
+
+🔹 FORMATO INPUT
+for   1
+
+👉 tipo di formato del file .h71
+
+👉 1 = formato standard Hypo71
+
+🔹 MAGNITUDO
+mag      0.
+
+👉 magnitudo dell’evento
+
+👉 qui non è usata → puoi ignorarla
+
+🔹 NUMERO MINIMO DI OSSERVAZIONI
+obs  6
+
+👉 minimo numero di stazioni richieste
+
+👉 se hai < 6 → FPFIT fallisce
+
+🔹 DISTANZA MASSIMA
+dis  0.1000E+06
+
+👉 distanza massima accettata (in metri)
+
+👉 valore enorme → usa tutte le stazioni
+
+🔹 RESIDUO MASSIMO
+res   100.0
+
+👉 errore massimo accettato
+
+👉 valore alto → filtro permissivo
+
+🔹 TAKEOFF ANGLE
+ain      0.      180.0
+
+👉 angolo di uscita delle onde
+
+👉 0–180° → accetta tutto
+
+🔹 AMPIEZZE
+amp   0
+
+👉 NON usa le ampiezze
+
+👉 usa solo polarità
+
+🔹 BOOTSTRAP
+bst   0
+
+👉 niente bootstrap (analisi statistica)
+
+🔹 OUTPUT FINALE
+fin   1
+
+👉 stampa la soluzione finale
+
+🔹 REPORT
+rep   1
+
+👉 stampa il report dettagliato (.out)
+
+🔹 CONFRONTO SOLUZIONI
+cmp   0
+
+👉 non confronta soluzioni multiple
+
+🔹 PARAMETRI INTERNI
+hdr  0.1000E-01 0.2000E-01 0.5000E-01 0.1000
+
+👉 soglie interne di qualità
+
+👉 normalmente non si modificano
+
+mcr  0.2000      1.000      1.000      1.000
+
+👉 parametri di controllo errori
+
+👉 anche questi standard
+
+🔍 PARTE PIÙ IMPORTANTE: GRIGLIA DI RICERCA
+
+FPFIT cerca la soluzione provando tante combinazioni.
+
+🧭 STRIKE
+dir    0.00      360.0      20.00      5.000
+valore	significato
+0 → 360	intervallo
+20°	passo grosso
+5°	raffinamento
+
+👉 prova tutte le direzioni della faglia
+
+📐 DIP
+dip    0.00      90.00      20.00      5.000
+valore	significato
+0 → 90	inclinazione
+20°	passo grosso
+5°	raffinamento
+
+👉 prova tutte le inclinazioni
+
+🔄 RAKE
+rak  -180.0      180.0      20.00      10.00
+valore	significato
+-180 → 180	movimento
+20°	passo grosso
+10°	raffinamento
+
+👉 prova tutte le direzioni di movimento
+
+🧠 COSA FA FPFIT CON QUESTI PARAMETRI
+legge file.loc.h71
+prende tutte le polarità P+/P−
+
+prova migliaia di combinazioni:
+
+strike × dip × rake
+per ogni combinazione:
+verifica se le polarità tornano
+sceglie quella con meno errori
+🎯 OUTPUT FINALE
+
+Nel file:
+
+fpfit.fps
+
+trovi:
+
+strike  dip  rake
+📊 ESEMPIO
+120   45   -90
+
+👉 significa:
+
+strike = 120°
+dip = 45°
+rake = -90° → faglia normale
+🚀 RIASSUNTO FINALE
+h71.inp = istruzioni per FPFIT
+
+dice:
+
+quale file leggere
+quali dati usare
+come filtrare
+come cercare la soluzione
+dove salvare il risultato
+💡 COSA PUOI MODIFICARE DAVVERO
+
+Le uniche righe che ha senso cambiare:
+
+obs   → minimo stazioni
+dir   → risoluzione strike
+dip   → risoluzione dip
+rak   → risoluzione rake
+🎯 CONCLUSIONE
+
+👉 Tutte le altre righe sono “setup”
+👉 Le ultime 3 (dir, dip, rak) sono il cuore del calcolo
