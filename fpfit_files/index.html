@@ -6,6 +6,22 @@
   <title>FPFIT Web</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
+
+<script>
+  function toggleConfig() {
+    const panel = document.getElementById("fpfit-config-panel");
+    const btn = document.getElementById("toggle-config-btn");
+
+    if (panel.style.display === "none") {
+      panel.style.display = "block";
+      btn.textContent = "Nascondi configurazione";
+    } else {
+      panel.style.display = "none";
+      btn.textContent = "Mostra configurazione";
+    }
+  }
+</script>
+
 <body>
   <main class="card">
     <section class="hero">
@@ -54,7 +70,15 @@
 <hr>
 
 <section style="padding: 0 28px 28px;">
-  <h3 style="margin-top:0;">Parametri FPFIT</h3>
+  <div class="row" style="justify-content: space-between;">
+  <h3 style="margin:0;">Parametri FPFIT</h3>
+     <button type="button" class="secondary-btn" onclick="toggleConfig()" id="toggle-config-btn">
+  {% if config_saved or config_reset %}Nascondi configurazione{% else %}Mostra configurazione{% endif %}
+     </button>
+  </div>
+
+  <div id="fpfit-config-panel" style="display: {% if config_saved or config_reset %}block{% else %}none{% endif %}; margin-top:16px;">
+
   <p class="hint">
     Questi parametri vengono usati per costruire <code>h71.inp</code> prima di lanciare FPFIT.
     Le modifiche vengono salvate con backup automatico.
@@ -82,6 +106,7 @@
   <form action="/fpfit-config/reset" method="post" style="margin-top:12px;">
     <button type="submit" class="secondary-btn">Ripristina default</button>
   </form>
+  </div>
 </section>
 
 </main>
