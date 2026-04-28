@@ -13,11 +13,11 @@
     const btn = document.getElementById("toggle-config-btn");
 
     if (panel.style.display === "none") {
+      panel.style.display = "none";
+      btn.textContent = "mostra configurazione";
+    } else {
       panel.style.display = "block";
       btn.textContent = "Nascondi configurazione";
-    } else {
-      panel.style.display = "none";
-      btn.textContent = "Mostra configurazione";
     }
   }
 </script>
