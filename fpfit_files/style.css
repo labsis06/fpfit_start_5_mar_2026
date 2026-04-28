@@ -297,3 +297,7 @@ textarea {
   color: #1e40af;
   border: 1px solid #bfdbfe;
 }
+
+[hidden] {
+  display: none !important;
+}

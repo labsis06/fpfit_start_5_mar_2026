@@ -8,23 +8,18 @@
 </head>
 
 <script>
-  function setConfigPanel(open) {
+  function toggleConfig() {
     const panel = document.getElementById("fpfit-config-panel");
     const btn = document.getElementById("toggle-config-btn");
 
-    panel.style.display = open ? "block" : "none";
-    btn.textContent = open ? "Nascondi configurazione" : "Mostra configurazione";
+    if (panel.hasAttribute("hidden")) {
+      panel.removeAttribute("hidden");
+      btn.textContent = "Nascondi configurazione";
+    } else {
+      panel.setAttribute("hidden", "");
+      btn.textContent = "Mostra configurazione";
+    }
   }
-
-  function toggleConfig() {
-    const panel = document.getElementById("fpfit-config-panel");
-    setConfigPanel(panel.style.display === "none");
-  }
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const panel = document.getElementById("fpfit-config-panel");
-    setConfigPanel(panel.dataset.open === "1");
-  });
 </script>
 
 <body>
@@ -82,7 +77,9 @@
     </button>
   </div>
 
-  <div id="fpfit-config-panel" data-open="{% if config_saved or config_reset %}1{% else %}0{% endif %}" style="display:none; margin-top:16px;">
+  <div id="fpfit-config-panel"
+     {% if not config_saved and not config_reset %}hidden{% endif %}
+     style="margin-top:16px;">
   <p class="hint">
     Questi parametri vengono usati per costruire <code>h71.inp</code> prima di lanciare FPFIT.
     Le modifiche vengono salvate con backup automatico.
