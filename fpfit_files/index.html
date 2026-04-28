@@ -77,9 +77,7 @@
     </button>
   </div>
 
-  <div id="fpfit-config-panel"
-     {% if not config_saved and not config_reset %}hidden{% endif %}
-     style="margin-top:16px;">
+  <div id="fpfit-config-panel"  {% if not config_saved and not config_reset %}hidden{% endif %} style="margin-top:16px;">
   <p class="hint">
     Questi parametri vengono usati per costruire <code>h71.inp</code> prima di lanciare FPFIT.
     Le modifiche vengono salvate con backup automatico.
