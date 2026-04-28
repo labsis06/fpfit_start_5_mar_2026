@@ -6,8 +6,9 @@ import shutil
 import subprocess
 from pathlib import Path
 from uuid import uuid4
+from datetime import datetime
 from typing import Optional
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
@@ -19,6 +20,10 @@ from fastapi.staticfiles import StaticFiles
 APP_ROOT = Path("/srv/fpfitweb")
 JOBS_DIR = APP_ROOT / "jobs"
 TEMPLATES_DIR = APP_ROOT / "templates"
+FPFIT_CFG_DIR = Path("/etc/software/fpfit/config")
+FPFIT_CFG_DEFAULT = FPFIT_CFG_DIR / "fpfit.defaults.inp"
+FPFIT_CFG_CURRENT = FPFIT_CFG_DIR / "fpfit.current.inp"
+FPFIT_CFG_BACKUPS = FPFIT_CFG_DIR / "backups"
 
 RUN_SCRIPT = Path("/etc/software/fpfit/scripts/runfpfit1.sh")
 CONTOUR_DIR = Path("/etc/software/fpfit/dati")
@@ -61,11 +66,92 @@ def copy_contours(job_dir: Path) -> None:
         if src.exists():
             shutil.copy2(src, job_dir / name)
 
+def ensure_fpfit_config() -> None:
+    FPFIT_CFG_DIR.mkdir(parents=True, exist_ok=True)
+    FPFIT_CFG_BACKUPS.mkdir(parents=True, exist_ok=True)
+
+    if not FPFIT_CFG_DEFAULT.exists():
+        raise RuntimeError(f"File default FPFIT mancante: {FPFIT_CFG_DEFAULT}")
+
+    if not FPFIT_CFG_CURRENT.exists():
+        shutil.copy2(FPFIT_CFG_DEFAULT, FPFIT_CFG_CURRENT)
+
+
+def read_fpfit_config() -> str:
+    ensure_fpfit_config()
+    return FPFIT_CFG_CURRENT.read_text(encoding="utf-8")
+
+
+def validate_fpfit_config(text: str) -> None:
+    if not text.strip():
+        raise HTTPException(400, "Configurazione FPFIT vuota.")
+
+    required = ["for", "obs", "dir", "dip", "rak"]
+    missing = [k for k in required if not re.search(rf"(?m)^{re.escape(k)}\b", text)]
+    if missing:
+        raise HTTPException(400, f"Parametri mancanti: {', '.join(missing)}")
+
+    if len(text) > 20000:
+        raise HTTPException(400, "Configurazione troppo lunga.")
+
+
+def backup_current_config(prefix: str = "fpfit.current") -> None:
+    ensure_fpfit_config()
+    if FPFIT_CFG_CURRENT.exists():
+        ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        backup = FPFIT_CFG_BACKUPS / f"{prefix}.{ts}.inp"
+        shutil.copy2(FPFIT_CFG_CURRENT, backup)           
+
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    cfg = read_fpfit_config()
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "fpfit_config": cfg,
+            "config_saved": False,
+            "config_reset": False,
+        },
+    )
 
+@app.post("/fpfit-config/save", response_class=HTMLResponse)
+async def save_fpfit_config(request: Request, fpfit_config: str = Form(...)):
+    ensure_fpfit_config()
+    validate_fpfit_config(fpfit_config)
+    backup_current_config()
+
+    tmp = FPFIT_CFG_CURRENT.with_suffix(".tmp")
+    tmp.write_text(fpfit_config.strip() + "\n", encoding="utf-8")
+    tmp.replace(FPFIT_CFG_CURRENT)
+
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "fpfit_config": FPFIT_CFG_CURRENT.read_text(encoding="utf-8"),
+            "config_saved": True,
+            "config_reset": False,
+        },
+    )
+
+@app.post("/fpfit-config/reset", response_class=HTMLResponse)
+async def reset_fpfit_config(request: Request):
+    ensure_fpfit_config()
+    backup_current_config(prefix="fpfit.current.before_reset")
+
+    shutil.copy2(FPFIT_CFG_DEFAULT, FPFIT_CFG_CURRENT)
+
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "fpfit_config": FPFIT_CFG_CURRENT.read_text(encoding="utf-8"),
+            "config_saved": False,
+            "config_reset": True,
+        },
+    )    
 
 @app.post("/run", response_class=HTMLResponse)
 async def run(

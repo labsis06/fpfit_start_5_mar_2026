@@ -50,6 +50,40 @@
 
   <button type="submit">Esegui elaborazione</button>
 </form>
-  </main>
+  
+<hr>
+
+<section style="padding: 0 28px 28px;">
+  <h3 style="margin-top:0;">Parametri FPFIT</h3>
+  <p class="hint">
+    Questi parametri vengono usati per costruire <code>h71.inp</code> prima di lanciare FPFIT.
+    Le modifiche vengono salvate con backup automatico.
+  </p>
+
+  {% if config_saved %}
+    <p class="msg-ok">Configurazione FPFIT salvata correttamente.</p>
+  {% endif %}
+
+  {% if config_reset %}
+    <p class="msg-info">Configurazione ripristinata ai valori di default.</p>
+  {% endif %}
+
+  <form action="/fpfit-config/save" method="post">
+    <div>
+      <label for="fpfit_config">Configurazione attiva</label>
+      <textarea id="fpfit_config" name="fpfit_config">{{ fpfit_config }}</textarea>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button type="submit">Salva parametri</button>
+    </div>
+  </form>
+
+  <form action="/fpfit-config/reset" method="post" style="margin-top:12px;">
+    <button type="submit" class="secondary-btn">Ripristina default</button>
+  </form>
+</section>
+
+</main>
 </body>
 </html>
