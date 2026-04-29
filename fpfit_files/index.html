@@ -27,40 +27,6 @@
   }
 </script>
 
-<script>
-const HELP = {
-  ttl: "Titolo del run (solo descrittivo)",
-  for: "Formato input (1 = Hypo71)",
-  mag: "Magnitudo (non usata)",
-  obs: "Numero minimo di stazioni richieste",
-  dis: "Distanza massima (metri)",
-  res: "Errore massimo accettato",
-  ain: "Intervallo angolo di uscita",
-  amp: "Uso ampiezze (0 = no)",
-  bst: "Bootstrap (0 = disattivato)",
-  fin: "Stampa soluzione finale",
-  rep: "Stampa report",
-  cmp: "Confronto soluzioni",
-  hdr: "Parametri interni di qualità",
-  mcr: "Controllo errori",
-  dir: "Ricerca strike (orientazione faglia)",
-  dip: "Ricerca inclinazione faglia",
-  rak: "Direzione movimento sulla faglia"
-};
-
-function showHelp(param) {
-  const panel = document.getElementById("fpfit-help");
-  const content = document.getElementById("help-content");
-
-  content.innerHTML = "<b>" + param + "</b><br>" + HELP[param];
-  panel.classList.remove("is-hidden");
-}
-
-function hideHelp() {
-  document.getElementById("fpfit-help").classList.add("is-hidden");
-}
-</script>
-
 <body>
   <main class="card">
     <section class="hero">
@@ -138,37 +104,87 @@ function hideHelp() {
       <div class="grid-form">
 
   <div>
-    <label>Numero minimo osservazioni (obs)</label>
+    <label>Titolo del run (ttl:solo descrittivo)</label>
+    <input type="number" name="ttl" value="{{ cfg.ttl }}">
+  </div>  
+  
+  <div>
+    <label>Formato input (for: 1 = Hypo71)</label>
+    <input type="number" name="for" value="{{ cfg.for }}">
+  </div>    
+  
+  <div>
+    <label>Magnitudo (mag 0: non usata) </label>
+    <input type="number" name="mag" value="{{ cfg.mag }}">
+</div>    
+  
+  <div>
+    <label>Numero minimo di stazioni richieste (obs)</label>
     <input type="number" name="obs" value="{{ cfg.obs }}">
   </div>
 
   <div>
-    <label>Distanza massima (dis)</label>
+    <label>Distanza massima in metri (dis)</label>
     <input type="text" name="dis" value="{{ cfg.dis }}">
   </div>
 
   <div>
-    <label>Residuo massimo (res)</label>
+    <label>Errore massimo accettato (res)</label>
     <input type="text" name="res" value="{{ cfg.res }}">
   </div>
 
   <div>
-    <label>Angolo uscita (ain)</label>
+    <label>Intervallo angolo di uscita (ain)</label>
     <input type="text" name="ain" value="{{ cfg.ain }}">
   </div>
 
   <div>
-    <label>Strike ricerca (dir)</label>
+    <label>Uso ampiezze (ain 0 = no)</label>
+    <input type="text" name="ain" value="{{ cfg.ain }}">
+  </div>
+  
+  <div>
+    <label>Bootstrap (bst 0 = disattivato)</label>
+    <input type="number" name="bst" value="{{ cfg.bst }}">
+  </div>
+
+  <div>
+    <label>Stampa soluzione finale (fin)</label>
+    <input type="number" name="fin" value="{{ cfg.fin }}">
+  </div>
+
+  <div>
+    <label>Stampa report (rep)</label>
+    <input type="number" name="rep" value="{{ cfg.rep }}">
+  </div>
+  
+  <div>
+    <label>Confronto soluzioni (cmp)</label>
+    <input type="number" name="cmp" value="{{ cfg.cmp }}">
+  </div>
+
+  <div>
+    <label>Parametri interni di qualità (hdr)</label>
+    <input type="text" name="hdr" value="{{ cfg.hdr }}">
+  </div>
+
+  <div>
+    <label>Controllo errori (mcr)</label>
+    <input type="number" name="mcr" value="{{ cfg.mcr }}">
+  </div>
+
+  <div>
+    <label>Ricerca strike (dir: orientazione faglia)</label>
     <input type="text" name="dir" value="{{ cfg.dir }}">
   </div>
 
   <div>
-    <label>Dip ricerca (dip)</label>
+    <label>Ricerca inclinazione faglia (dip)</label>
     <input type="text" name="dip" value="{{ cfg.dip }}">
   </div>
 
   <div>
-    <label>Rake ricerca (rak)</label>
+    <label>Direzione movimento sulla faglia (rak)</label>
     <input type="text" name="rak" value="{{ cfg.rak }}">
   </div>
 
