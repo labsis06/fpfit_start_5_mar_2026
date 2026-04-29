@@ -305,3 +305,45 @@ textarea {
 .is-hidden {
   display: none !important;
 }
+
+.help-panel {
+  position: fixed;
+  right: 20px;
+  top: 100px;
+  width: 320px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #dbe4f0;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  padding: 16px;
+  z-index: 1000;
+}
+
+.help-panel h3 {
+  margin-top: 0;
+}
+
+.is-hidden {
+  display: none;
+}
+
+.param {
+  cursor: pointer;
+  font-weight: 600;
+  color: #1d4ed8;
+}
+
+.grid-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.grid-form input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+}

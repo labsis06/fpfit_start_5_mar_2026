@@ -81,6 +81,14 @@ def read_fpfit_config() -> str:
     ensure_fpfit_config()
     return FPFIT_CFG_CURRENT.read_text(encoding="utf-8")
 
+def parse_config(text: str):
+    cfg = {}
+    for line in text.splitlines():
+        parts = line.split()
+        if len(parts) > 1:
+            key = parts[0]
+            cfg[key] = " ".join(parts[1:])
+    return cfg
 
 def validate_fpfit_config(text: str) -> None:
     if not text.strip():
@@ -105,33 +113,66 @@ def backup_current_config(prefix: str = "fpfit.current") -> None:
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    cfg = read_fpfit_config()
+    cfg_text = read_fpfit_config()
+    cfg = parse_config(cfg_text)
     return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
-            "fpfit_config": cfg,
-            "config_saved": False,
-            "config_reset": False,
-            "show_config": False,
-        },
-    )
+    "index.html",
+    {
+        "request": request,
+        "fpfit_config": cfg_text,
+        "cfg": cfg,  
+        "config_saved": False,
+        "config_reset": False,
+        "show_config": False,
+    },
+)
 
 @app.post("/fpfit-config/save", response_class=HTMLResponse)
-async def save_fpfit_config(request: Request, fpfit_config: str = Form(...)):
+async def save_fpfit_config(
+    request: Request,
+    obs: str = Form(...),
+    dis: str = Form(...),
+    res: str = Form(...),
+    ain: str = Form(...),
+    dir: str = Form(...),
+    dip: str = Form(...),
+    rak: str = Form(...)
+):
     ensure_fpfit_config()
-    validate_fpfit_config(fpfit_config)
+
+    # crea il file FPFIT a partire dai campi del form
+    text = f"""ttl   1 'none'
+for   1
+mag      0.
+obs   {obs}
+dis  {dis}
+res   {res}
+ain      {ain}
+amp   0
+bst   0
+fin   1
+rep   1
+cmp   0
+hdr  0.1000E-01 0.2000E-01 0.5000E-01 0.1000
+mcr  0.2000      1.000      1.000      1.000
+dir    {dir}
+dip    {dip}
+rak  {rak}
+"""
+
+    # backup configurazione precedente
     backup_current_config()
 
+    # salva nuova configurazione
     tmp = FPFIT_CFG_CURRENT.with_suffix(".tmp")
-    tmp.write_text(fpfit_config.strip() + "\n", encoding="utf-8")
+    tmp.write_text(text, encoding="utf-8")
     tmp.replace(FPFIT_CFG_CURRENT)
 
     return templates.TemplateResponse(
         "index.html",
         {
             "request": request,
-            "fpfit_config": FPFIT_CFG_CURRENT.read_text(encoding="utf-8"),
+            "fpfit_config": text,
             "config_saved": True,
             "config_reset": False,
             "show_config": True,

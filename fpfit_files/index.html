@@ -27,6 +27,40 @@
   }
 </script>
 
+<script>
+const HELP = {
+  ttl: "Titolo del run (solo descrittivo)",
+  for: "Formato input (1 = Hypo71)",
+  mag: "Magnitudo (non usata)",
+  obs: "Numero minimo di stazioni richieste",
+  dis: "Distanza massima (metri)",
+  res: "Errore massimo accettato",
+  ain: "Intervallo angolo di uscita",
+  amp: "Uso ampiezze (0 = no)",
+  bst: "Bootstrap (0 = disattivato)",
+  fin: "Stampa soluzione finale",
+  rep: "Stampa report",
+  cmp: "Confronto soluzioni",
+  hdr: "Parametri interni di qualità",
+  mcr: "Controllo errori",
+  dir: "Ricerca strike (orientazione faglia)",
+  dip: "Ricerca inclinazione faglia",
+  rak: "Direzione movimento sulla faglia"
+};
+
+function showHelp(param) {
+  const panel = document.getElementById("fpfit-help");
+  const content = document.getElementById("help-content");
+
+  content.innerHTML = "<b>" + param + "</b><br>" + HELP[param];
+  panel.classList.remove("is-hidden");
+}
+
+function hideHelp() {
+  document.getElementById("fpfit-help").classList.add("is-hidden");
+}
+</script>
+
 <body>
   <main class="card">
     <section class="hero">
@@ -101,7 +135,52 @@
   <form action="/fpfit-config/save" method="post">
     <div>
       <label for="fpfit_config">Configurazione attiva</label>
-      <textarea id="fpfit_config" name="fpfit_config">{{ fpfit_config }}</textarea>
+      <div class="grid-form">
+
+  <div>
+    <label>Numero minimo osservazioni (obs)</label>
+    <input type="number" name="obs" value="{{ cfg.obs }}">
+  </div>
+
+  <div>
+    <label>Distanza massima (dis)</label>
+    <input type="text" name="dis" value="{{ cfg.dis }}">
+  </div>
+
+  <div>
+    <label>Residuo massimo (res)</label>
+    <input type="text" name="res" value="{{ cfg.res }}">
+  </div>
+
+  <div>
+    <label>Angolo uscita (ain)</label>
+    <input type="text" name="ain" value="{{ cfg.ain }}">
+  </div>
+
+  <div>
+    <label>Strike ricerca (dir)</label>
+    <input type="text" name="dir" value="{{ cfg.dir }}">
+  </div>
+
+  <div>
+    <label>Dip ricerca (dip)</label>
+    <input type="text" name="dip" value="{{ cfg.dip }}">
+  </div>
+
+  <div>
+    <label>Rake ricerca (rak)</label>
+    <input type="text" name="rak" value="{{ cfg.rak }}">
+  </div>
+
+</div>
+      <div style="margin-top:10px;">
+        <span class="param" onclick="showHelp('obs')">obs</span> |
+        <span class="param" onclick="showHelp('dis')">dis</span> |
+        <span class="param" onclick="showHelp('res')">res</span> |
+        <span class="param" onclick="showHelp('dir')">dir</span> |
+        <span class="param" onclick="showHelp('dip')">dip</span> |
+        <span class="param" onclick="showHelp('rak')">rak</span>
+</div>
     </div>
 
     <div class="row" style="margin-top:12px;">
@@ -114,6 +193,13 @@
   </form>
   </div>
 </section>
+
+<aside id="fpfit-help" class="help-panel is-hidden">
+  <h3>Legenda parametri FPFIT</h3>
+  <div id="help-content">
+    <p>Seleziona un parametro per vedere la descrizione.</p>
+  </div>
+</aside>
 
 </main>
 </body>
