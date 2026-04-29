@@ -113,6 +113,7 @@ def home(request: Request):
             "fpfit_config": cfg,
             "config_saved": False,
             "config_reset": False,
+            "show_config": False,
         },
     )
 
@@ -133,6 +134,7 @@ async def save_fpfit_config(request: Request, fpfit_config: str = Form(...)):
             "fpfit_config": FPFIT_CFG_CURRENT.read_text(encoding="utf-8"),
             "config_saved": True,
             "config_reset": False,
+            "show_config": True,
         },
     )
 

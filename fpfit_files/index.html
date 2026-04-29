@@ -78,12 +78,12 @@
   <div class="row" style="justify-content: space-between;">
   <h3 style="margin:0;">Parametri FPFIT</h3>
      <button type="button" class="secondary-btn" onclick="toggleConfig()" id="toggle-config-btn">
-  {% if config_saved or config_reset %}Nascondi configurazione{% else %}Mostra configurazione{% endif %}
+         {% if show_config %}Nascondi configurazione{% else %}Mostra configurazione{% endif %}
     </button>
   </div>
 
   <div id="fpfit-config-panel"
-     class="{% if not config_saved and not config_reset %}is-hidden{% endif %}"
+     class="{% if not show_config %}is-hidden{% endif %}"
      style="margin-top:16px;">
   <p class="hint">
     Questi parametri vengono usati per costruire <code>h71.inp</code> prima di lanciare FPFIT.
