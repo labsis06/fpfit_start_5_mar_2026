@@ -101,95 +101,7 @@
   <form action="/fpfit-config/save" method="post">
     <div>
       <label for="fpfit_config">Configurazione attiva</label>
-      <div class="grid-form">
-
-  <div>
-    <label>Titolo del run (ttl:solo descrittivo)</label>
-    <input type="number" name="ttl" value="{{ cfg.ttl }}">
-  </div>  
-  
-  <div>
-    <label>Formato input (for: 1 = Hypo71)</label>
-    <input type="number" name="for" value="{{ cfg.for }}">
-  </div>    
-  
-  <div>
-    <label>Magnitudo (mag 0: non usata) </label>
-    <input type="number" name="mag" value="{{ cfg.mag }}">
-</div>    
-  
-  <div>
-    <label>Numero minimo di stazioni richieste (obs)</label>
-    <input type="number" name="obs" value="{{ cfg.obs }}">
-  </div>
-
-  <div>
-    <label>Distanza massima in metri (dis)</label>
-    <input type="text" name="dis" value="{{ cfg.dis }}">
-  </div>
-
-  <div>
-    <label>Errore massimo accettato (res)</label>
-    <input type="text" name="res" value="{{ cfg.res }}">
-  </div>
-
-  <div>
-    <label>Intervallo angolo di uscita (ain)</label>
-    <input type="text" name="ain" value="{{ cfg.ain }}">
-  </div>
-
-  <div>
-    <label>Uso ampiezze (amp 0 = no)</label>
-    <input type="text" name="amp" value="{{ cfg.amp }}">
-  </div>
-  
-  <div>
-    <label>Bootstrap (bst 0 = disattivato)</label>
-    <input type="number" name="bst" value="{{ cfg.bst }}">
-  </div>
-
-  <div>
-    <label>Stampa soluzione finale (fin)</label>
-    <input type="number" name="fin" value="{{ cfg.fin }}">
-  </div>
-
-  <div>
-    <label>Stampa report (rep)</label>
-    <input type="number" name="rep" value="{{ cfg.rep }}">
-  </div>
-  
-  <div>
-    <label>Confronto soluzioni (cmp)</label>
-    <input type="number" name="cmp" value="{{ cfg.cmp }}">
-  </div>
-
-  <div>
-    <label>Parametri interni di qualità (hdr)</label>
-    <input type="text" name="hdr" value="{{ cfg.hdr }}">
-  </div>
-
-  <div>
-    <label>Controllo errori (mcr)</label>
-    <input type="number" name="mcr" value="{{ cfg.mcr }}">
-  </div>
-
-  <div>
-    <label>Ricerca strike (dir: orientazione faglia)</label>
-    <input type="text" name="dir" value="{{ cfg.dir }}">
-  </div>
-
-  <div>
-    <label>Ricerca inclinazione faglia (dip)</label>
-    <input type="text" name="dip" value="{{ cfg.dip }}">
-  </div>
-
-  <div>
-    <label>Direzione movimento sulla faglia (rak)</label>
-    <input type="text" name="rak" value="{{ cfg.rak }}">
-  </div>
-
-</div>
-      
+      <textarea id="fpfit_config" name="fpfit_config">{{ fpfit_config }}</textarea>
     </div>
 
     <div class="row" style="margin-top:12px;">
@@ -202,13 +114,6 @@
   </form>
   </div>
 </section>
-
-<aside id="fpfit-help" class="help-panel is-hidden">
-  <h3>Legenda parametri FPFIT</h3>
-  <div id="help-content">
-    <p>Seleziona un parametro per vedere la descrizione.</p>
-  </div>
-</aside>
 
 </main>
 </body>
