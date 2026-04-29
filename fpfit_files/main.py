@@ -152,6 +152,7 @@ async def reset_fpfit_config(request: Request):
             "fpfit_config": FPFIT_CFG_CURRENT.read_text(encoding="utf-8"),
             "config_saved": False,
             "config_reset": True,
+             "show_config": True, 
         },
     )    
 
