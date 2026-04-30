@@ -354,7 +354,7 @@ textarea {
 
 .legend-balloon {
   position: absolute;
-  top: 56px;
+  top: 58px;
   right: 0;
   width: min(520px, 90vw);
   padding: 16px 18px;
@@ -362,7 +362,6 @@ textarea {
   border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
-  color: var(--text);
   z-index: 1000;
 }
 
@@ -379,21 +378,11 @@ textarea {
   transform: rotate(45deg);
 }
 
-.legend-balloon h4 {
-  margin: 0 0 10px;
-}
-
 .legend-balloon ul {
   margin: 0;
   padding-left: 20px;
 }
 
-.legend-balloon li {
-  margin: 6px 0;
-  color: var(--muted);
-  font-size: 0.92rem;
-}
-
-.legend-balloon b {
-  color: var(--text);
+.is-hidden {
+  display: none !important;
 }
