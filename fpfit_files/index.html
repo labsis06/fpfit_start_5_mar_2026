@@ -13,19 +13,31 @@
 </head>
 
 <script>
-  function toggleConfig() {
-    const panel = document.getElementById("fpfit-config-panel");
-    const btn = document.getElementById("toggle-config-btn");
+  document.addEventListener("DOMContentLoaded", function () {
+  const panel = document.getElementById("fpfit-config-panel");
+  const legendBtn = document.getElementById("legend-btn");
 
-    panel.classList.toggle("is-hidden");
-
-    if (panel.classList.contains("is-hidden")) {
-      btn.textContent = "Mostra configurazione";
-    } else {
-      btn.textContent = "Nascondi configurazione";
-    }
+  if (!panel.classList.contains("is-hidden")) {
+    legendBtn.classList.remove("is-hidden");
   }
+  });
+  
+  
+  function toggleConfig() {
+  const panel = document.getElementById("fpfit-config-panel");
+  const btn = document.getElementById("toggle-config-btn");
+  const legendBtn = document.getElementById("legend-btn");
 
+  panel.classList.toggle("is-hidden");
+
+  if (panel.classList.contains("is-hidden")) {
+    btn.textContent = "Mostra configurazione";
+    legendBtn.classList.add("is-hidden");   // 👈 NASCONDE legenda
+  } else {
+    btn.textContent = "Nascondi configurazione";
+    legendBtn.classList.remove("is-hidden"); // 👈 MOSTRA legenda
+  }
+}
   function toggleLegend() {
     const balloon = document.getElementById("legend-balloon");
     balloon.classList.toggle("is-hidden");
@@ -87,7 +99,7 @@
     {% if show_config %}Nascondi configurazione{% else %}Mostra configurazione{% endif %}
   </button>
 
-  <button type="button" class="secondary-btn" onclick="toggleLegend()" id="legend-btn">
+  <button type="button" class="secondary-btn is-hidden" onclick="toggleLegend()" id="legend-btn">
     Legenda parametri
   </button>
 
