@@ -347,3 +347,35 @@ textarea {
   border-radius: 8px;
   border: 1px solid #cbd5e1;
 }
+
+.legend-balloon {
+  margin-top: 14px;
+  padding: 16px 18px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
+  color: var(--text);
+}
+
+.legend-balloon h4 {
+  margin: 0 0 10px;
+}
+
+.legend-balloon ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.legend-balloon li {
+  margin: 6px 0;
+  color: var(--muted);
+}
+
+.legend-balloon b {
+  color: var(--text);
+}
+
+.is-hidden {
+  display: none !important;
+}

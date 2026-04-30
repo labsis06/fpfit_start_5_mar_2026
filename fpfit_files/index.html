@@ -25,6 +25,11 @@
       btn.textContent = "Nascondi configurazione";
     }
   }
+
+  function toggleLegend() {
+    const balloon = document.getElementById("legend-balloon");
+    balloon.classList.toggle("is-hidden");
+  }
 </script>
 
 <body>
@@ -79,8 +84,35 @@
   <h3 style="margin:0;">Parametri FPFIT</h3>
      <button type="button" class="secondary-btn" onclick="toggleConfig()" id="toggle-config-btn">
          {% if show_config %}Nascondi configurazione{% else %}Mostra configurazione{% endif %}
-    </button>
+     </button>
+     <button type="button" class="secondary-btn" onclick="toggleLegend()" id="legend-btn">
+        Legenda parametri
+     </button>
   </div>
+  
+  <div id="legend-balloon" class="legend-balloon is-hidden">
+  <h4>Legenda parametri FPFIT</h4>
+  <ul>
+    <li><b>ttl</b>: Titolo del run (solo descrittivo)</li>
+    <li><b>for</b>: Formato input (1 = Hypo71)</li>
+    <li><b>mag</b>: Magnitudo (non usata)</li>
+    <li><b>obs</b>: Numero minimo di stazioni richieste</li>
+    <li><b>dis</b>: Distanza massima (metri)</li>
+    <li><b>res</b>: Errore massimo accettato</li>
+    <li><b>ain</b>: Intervallo angolo di uscita</li>
+    <li><b>amp</b>: Uso ampiezze (0 = no)</li>
+    <li><b>bst</b>: Bootstrap (0 = disattivato)</li>
+    <li><b>fin</b>: Stampa soluzione finale</li>
+    <li><b>rep</b>: Stampa report</li>
+    <li><b>cmp</b>: Confronto soluzioni</li>
+    <li><b>hdr</b>: Parametri interni di qualità</li>
+    <li><b>mcr</b>: Controllo errori</li>
+    <li><b>dir</b>: Ricerca strike (orientazione faglia)</li>
+    <li><b>dip</b>: Ricerca inclinazione faglia</li>
+    <li><b>rak</b>: Direzione movimento sulla faglia</li>
+  </ul>
+</div>
+
 
   <div id="fpfit-config-panel"
      class="{% if not show_config %}is-hidden{% endif %}"
