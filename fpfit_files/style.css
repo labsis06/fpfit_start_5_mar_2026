@@ -348,26 +348,31 @@ textarea {
   border: 1px solid #cbd5e1;
 }
 
-.legend-balloon {
+.legend-wrap {
   position: relative;
-  margin-top: 14px;
-  margin-left: auto;
-  width: min(520px, 100%);
+}
+
+.legend-balloon {
+  position: absolute;
+  top: 56px;
+  right: 0;
+  width: min(520px, 90vw);
   padding: 16px 18px;
   background: #ffffff;
   border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.16);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
   color: var(--text);
+  z-index: 1000;
 }
 
 .legend-balloon::before {
   content: "";
   position: absolute;
-  top: -10px;
-  right: 120px;
-  width: 18px;
-  height: 18px;
+  top: -9px;
+  right: 70px;
+  width: 16px;
+  height: 16px;
   background: #ffffff;
   border-left: 1px solid var(--border);
   border-top: 1px solid var(--border);
