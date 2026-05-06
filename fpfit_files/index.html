@@ -106,23 +106,23 @@
   <div id="legend-balloon" class="legend-balloon is-hidden">
     <h4>Legenda parametri FPFIT</h4>
     <ul>
-      <li><b>ttl</b>: Titolo del run (solo descrittivo)</li>
-      <li><b>for</b>: Formato input (1 = Hypo71)</li>
-      <li><b>mag</b>: Magnitudo (non usata)</li>
-      <li><b>obs</b>: Numero minimo di stazioni richieste</li>
-      <li><b>dis</b>: Distanza massima (metri)</li>
-      <li><b>res</b>: Errore massimo accettato</li>
-      <li><b>ain</b>: Intervallo angolo di uscita</li>
-      <li><b>amp</b>: Uso ampiezze (0 = no)</li>
-      <li><b>bst</b>: Bootstrap (0 = disattivato)</li>
-      <li><b>fin</b>: Stampa soluzione finale</li>
-      <li><b>rep</b>: Stampa report</li>
-      <li><b>cmp</b>: Confronto soluzioni</li>
-      <li><b>hdr</b>: Parametri interni di qualità</li>
-      <li><b>mcr</b>: Controllo errori</li>
-      <li><b>dir</b>: Ricerca strike (orientazione faglia)</li>
-      <li><b>dip</b>: Ricerca inclinazione faglia</li>
-      <li><b>rak</b>: Ricerca direzione movimento faglia</li>
+      <li><b>ttl</b>: Titolo del run (solo descrittivo). Tipo string</li>
+      <li><b>for</b>: Formato input (1 = Hypo71). Tipo int</li>
+      <li><b>mag</b>: Magnitudo (non usata). Tipo float. Valori ammessi: mag >= 0</li>
+      <li><b>obs</b>: Numero minimo di stazioni richieste. Tipo int. Valori ammessi: obs >= 4 (consigliato >= 6)</li>
+      <li><b>dis</b>: Distanza massima delle stazioni dall'epicentro (metri). Tipo float. Valori ammessi: dis > 0</li>
+      <li><b>res</b>: Errore massimo accettato. Tipo float. Valori ammessi: res > 0; 1 → molto restrittivo - 100 → permissivo</li>
+      <li><b>ain</b>: Intervallo angolo di uscita. Tipo float. Valori ammessi: 0 ≤ ain ≤ 180; Esempio: ain 0. 180.</li>
+      <li><b>amp</b>: Uso ampiezze (0 = no). Tipo int. Valori ammessi: 0 = no; 1 = sì; normalmente: 0</li>
+      <li><b>bst</b>: Bootstrap (0 = disattivato). Tipo int. Valori ammessi: 0 = off; 1 = on; normalmente: 0</li>
+      <li><b>fin</b>: Stampa soluzione finale. Tipo int. Valori ammessi: 0 / 1; deve essere 1</li>
+      <li><b>rep</b>: Stampa report. Tipo int. Valori ammessi: 0 / 1; deve essere 1</li>
+      <li><b>cmp</b>: Confronto soluzioni. Tipo int. Valori ammessi: 0 / 1; normalmente: 0</li>
+      <li><b>hdr</b>: Parametri interni di qualità. Tipo float. Valori ammessi: hdr > 0; modifica sconsigliata</li>
+      <li><b>mcr</b>: Controllo errori. Tipo float. Valori ammessi: mcr > 0; modifica sconsigliata</li>
+      <li><b>dir</b>: Ricerca strike (orientazione faglia). dir min max step_coarse step_fine. Valori ammessi: 0 ≤ min < max ≤ 360; step > 0; Esempio: dir 0.00 360.0 20.00 5.000</li>
+      <li><b>dip</b>: Ricerca inclinazione faglia. dip min max step_coarse step_fine. Valori ammessi: 0 ≤ min < max ≤ 90; step > 0; Esempio: dip 0.00 90.00 20.00 5.000</li>
+      <li><b>rak</b>: Ricerca direzione movimento faglia. rak min max step_coarse step_fine. Valori ammessi: -180 ≤ min < max ≤ 180; step > 0; Esempio: rak -180.0 180.0 20.00 10.00</li>
     </ul>
   </div>
 </div>
