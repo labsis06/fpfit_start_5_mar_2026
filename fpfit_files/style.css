@@ -386,3 +386,49 @@ textarea {
 .is-hidden {
   display: none !important;
 }
+
+.legend-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+.legend-card h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.legend-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.legend-item.wide {
+  grid-column: span 2;
+}
+
+.param-name {
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.param-desc {
+  font-size: 0.92rem;
+  margin-top: 2px;
+}
+
+.param-meta {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 4px;
+}

@@ -103,28 +103,93 @@
     Legenda parametri
   </button>
 
-  <div id="legend-balloon" class="legend-balloon is-hidden">
-    <h4>Legenda parametri FPFIT</h4>
-    <ul>
-      <li><b>ttl</b>: Titolo del run (solo descrittivo). Tipo string</li>
-      <li><b>for</b>: Formato input (1 = Hypo71). Tipo int</li>
-      <li><b>mag</b>: Magnitudo (non usata). Tipo float. Valori ammessi: mag >= 0</li>
-      <li><b>obs</b>: Numero minimo di stazioni richieste. Tipo int. Valori ammessi: obs >= 4 (consigliato >= 6)</li>
-      <li><b>dis</b>: Distanza massima delle stazioni dall'epicentro (metri). Tipo float. Valori ammessi: dis > 0</li>
-      <li><b>res</b>: Errore massimo accettato. Tipo float. Valori ammessi: res > 0; 1 → molto restrittivo - 100 → permissivo</li>
-      <li><b>ain</b>: Intervallo angolo di uscita. Tipo float. Valori ammessi: 0 ≤ ain ≤ 180; Esempio: ain 0. 180.</li>
-      <li><b>amp</b>: Uso ampiezze (0 = no). Tipo int. Valori ammessi: 0 = no; 1 = sì; normalmente: 0</li>
-      <li><b>bst</b>: Bootstrap (0 = disattivato). Tipo int. Valori ammessi: 0 = off; 1 = on; normalmente: 0</li>
-      <li><b>fin</b>: Stampa soluzione finale. Tipo int. Valori ammessi: 0 / 1; deve essere 1</li>
-      <li><b>rep</b>: Stampa report. Tipo int. Valori ammessi: 0 / 1; deve essere 1</li>
-      <li><b>cmp</b>: Confronto soluzioni. Tipo int. Valori ammessi: 0 / 1; normalmente: 0</li>
-      <li><b>hdr</b>: Parametri interni di qualità. Tipo float. Valori ammessi: hdr > 0; modifica sconsigliata</li>
-      <li><b>mcr</b>: Controllo errori. Tipo float. Valori ammessi: mcr > 0; modifica sconsigliata</li>
-      <li><b>dir</b>: Ricerca strike (orientazione faglia). dir min max step_coarse step_fine. Valori ammessi: 0 ≤ min < max ≤ 360; step > 0; Esempio: dir 0.00 360.0 20.00 5.000</li>
-      <li><b>dip</b>: Ricerca inclinazione faglia. dip min max step_coarse step_fine. Valori ammessi: 0 ≤ min < max ≤ 90; step > 0; Esempio: dip 0.00 90.00 20.00 5.000</li>
-      <li><b>rak</b>: Ricerca direzione movimento faglia. rak min max step_coarse step_fine. Valori ammessi: -180 ≤ min < max ≤ 180; step > 0; Esempio: rak -180.0 180.0 20.00 10.00</li>
-    </ul>
+ <div class="legend-card">
+  <h3>Legenda parametri FPFIT</h3>
+
+  <div class="legend-grid">
+
+    <div class="legend-item">
+      <div class="param-name">ttl</div>
+      <div class="param-desc">Titolo del run</div>
+      <div class="param-meta">Tipo: string</div>
+    </div>
+
+    <div class="legend-item">
+      <div class="param-name">for</div>
+      <div class="param-desc">Formato input (Hypo71)</div>
+      <div class="param-meta">Tipo: int (1 fisso)</div>
+    </div>
+
+    <div class="legend-item">
+      <div class="param-name">mag</div>
+      <div class="param-desc">Magnitudo (non usata)</div>
+      <div class="param-meta">Tipo: float ≥ 0</div>
+    </div>
+
+    <div class="legend-item">
+      <div class="param-name">obs</div>
+      <div class="param-desc">Numero minimo di stazioni</div>
+      <div class="param-meta">Tipo: int ≥ 4 (consigliato ≥ 6)</div>
+    </div>
+
+    <div class="legend-item">
+      <div class="param-name">dis</div>
+      <div class="param-desc">Distanza massima (m)</div>
+      <div class="param-meta">Tipo: float > 0</div>
+    </div>
+
+    <div class="legend-item">
+      <div class="param-name">res</div>
+      <div class="param-desc">Errore massimo</div>
+      <div class="param-meta">Tipo: float > 0</div>
+    </div>
+
+    <div class="legend-item">
+      <div class="param-name">ain</div>
+      <div class="param-desc">Angolo uscita</div>
+      <div class="param-meta">0 – 180°</div>
+    </div>
+
+    <div class="legend-item">
+      <div class="param-name">amp</div>
+      <div class="param-desc">Uso ampiezze</div>
+      <div class="param-meta">0 = no, 1 = sì</div>
+    </div>
+
+    <div class="legend-item">
+      <div class="param-name">bst</div>
+      <div class="param-desc">Bootstrap</div>
+      <div class="param-meta">0 = off, 1 = on</div>
+    </div>
+
+    <div class="legend-item">
+      <div class="param-name">fin</div>
+      <div class="param-desc">Output finale</div>
+      <div class="param-meta">0 / 1</div>
+    </div>
+
+    <div class="legend-item">
+      <div class="param-name">rep</div>
+      <div class="param-desc">Report</div>
+      <div class="param-meta">0 / 1</div>
+    </div>
+
+    <div class="legend-item">
+      <div class="param-name">cmp</div>
+      <div class="param-desc">Confronto soluzioni</div>
+      <div class="param-meta">0 / 1</div>
+    </div>
+
+    <div class="legend-item wide">
+      <div class="param-name">dir / dip / rak</div>
+      <div class="param-desc">Parametri di ricerca (strike, dip, rake)</div>
+      <div class="param-meta">
+        dir: 0–>360° | dip: 0–>90° | rak: -180–>180°
+      </div>
+    </div>
+
   </div>
+</div>
 </div>
 
 
