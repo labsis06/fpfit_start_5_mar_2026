@@ -240,6 +240,17 @@
   <button type="submit" class="secondary-btn">Carica</button>
 </form>
 
+<form action="/fpfit-config/delete" method="post" style="margin-top:12px;">
+  <input type="hidden" name="selected_config" value="{{ selected_config }}">
+  <button type="submit" class="secondary-btn">
+    Cancella configurazione
+  </button>
+  </form>
+
+  <form action="/fpfit-config/reset" method="post" style="margin-top:12px;">
+    <button type="submit" class="secondary-btn">Ripristina default</button>
+  </form>
+  </div>
   {% if config_saved %}
     <p class="msg-ok">Configurazione FPFIT salvata correttamente.</p>
   {% endif %}
@@ -270,17 +281,7 @@
     </div>
   </form>
   
-  <form action="/fpfit-config/delete" method="post" style="margin-top:12px;">
-  <input type="hidden" name="selected_config" value="{{ selected_config }}">
-  <button type="submit" class="secondary-btn">
-    Cancella configurazione
-  </button>
-  </form>
-
-  <form action="/fpfit-config/reset" method="post" style="margin-top:12px;">
-    <button type="submit" class="secondary-btn">Ripristina default</button>
-  </form>
-  </div>
+  
 </section>
 
 </main>
