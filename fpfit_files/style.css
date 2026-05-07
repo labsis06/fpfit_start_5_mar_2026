@@ -306,29 +306,6 @@ textarea {
   display: none !important;
 }
 
-.help-panel {
-  position: fixed;
-  right: 20px;
-  top: 100px;
-  width: 320px;
-  max-height: 70vh;
-  overflow-y: auto;
-  background: white;
-  border: 1px solid #dbe4f0;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  padding: 16px;
-  z-index: 1000;
-}
-
-.help-panel h3 {
-  margin-top: 0;
-}
-
-.is-hidden {
-  display: none;
-}
-
 .param {
   cursor: pointer;
   font-weight: 600;
@@ -350,41 +327,6 @@ textarea {
 
 .legend-wrap {
   position: relative;
-}
-
-.legend-balloon {
-  position: absolute;
-  top: 58px;
-  right: 0;
-! width: min(520px, 90vw);
-  padding: 16px 18px;
-  background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
-  z-index: 1000;
-}
-
-.legend-balloon::before {
-  content: "";
-  position: absolute;
-  top: -9px;
-  right: 70px;
-  width: 16px;
-  height: 16px;
-  background: #ffffff;
-  border-left: 1px solid var(--border);
-  border-top: 1px solid var(--border);
-  transform: rotate(45deg);
-}
-
-.legend-balloon ul {
-  margin: 0;
-  padding-left: 20px;
-}
-
-.is-hidden {
-  display: none !important;
 }
 
 .legend-card {
