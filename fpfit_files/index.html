@@ -116,8 +116,8 @@
 
     <div class="legend-item">
       <div class="param-name">for</div>
-      <div class="param-desc">Formato input (Hypo71)</div>
-      <div class="param-meta">Tipo: int (1 fisso)</div>
+      <div class="param-desc">Formato input (1 = Hypo71)</div>
+      <div class="param-meta">Tipo: int</div>
     </div>
 
     <div class="legend-item">
@@ -128,20 +128,22 @@
 
     <div class="legend-item">
       <div class="param-name">obs</div>
-      <div class="param-desc">Numero minimo di stazioni</div>
+      <div class="param-desc">Numero minimo di stazioni richieste</div>
       <div class="param-meta">Tipo: int ≥ 4 (consigliato ≥ 6)</div>
     </div>
 
     <div class="legend-item">
       <div class="param-name">dis</div>
-      <div class="param-desc">Distanza massima (m)</div>
+      <div class="param-desc">Distanza massima delle stazioni dall'epicentro in metri</div>
       <div class="param-meta">Tipo: float > 0</div>
+      
     </div>
 
     <div class="legend-item">
       <div class="param-name">res</div>
       <div class="param-desc">Errore massimo</div>
       <div class="param-meta">Tipo: float > 0</div>
+      <div class="param-meta">1 → molto restrittivo - 100 → permissivo</div>
     </div>
 
     <div class="legend-item">
@@ -165,13 +167,13 @@
     <div class="legend-item">
       <div class="param-name">fin</div>
       <div class="param-desc">Output finale</div>
-      <div class="param-meta">0 / 1</div>
+      <div class="param-meta">0 = off, 1 = on</div>
     </div>
 
     <div class="legend-item">
       <div class="param-name">rep</div>
       <div class="param-desc">Report</div>
-      <div class="param-meta">0 / 1</div>
+      <div class="param-meta">0 = off, 1 = on</div>
     </div>
 
     <div class="legend-item">
@@ -180,11 +182,27 @@
       <div class="param-meta">0 / 1</div>
     </div>
 
+    <div class="legend-item">
+      <div class="param-name">hdr</div>
+      <div class="param-desc">Parametri interni di qualità</div>
+      <div class="param-meta">Tipo: float > 0</div>
+      <div class="param-meta">Modifica sconsigliata</div>
+    </div>
+
+    <div class="legend-item">
+      <div class="param-name">mcr</div>
+      <div class="param-desc">Controllo errori</div>
+      <div class="param-meta">Tipo: float > 0</div>
+      <div class="param-meta">Modifica sconsigliata</div>
+    </div>
+    
+    
     <div class="legend-item wide">
       <div class="param-name">dir / dip / rak</div>
       <div class="param-desc">Parametri di ricerca (strike, dip, rake)</div>
+      <div class="param-meta">min max step_coarse step_fine</div>
       <div class="param-meta">
-        dir: 0–>360° | dip: 0–>90° | rak: -180–>180°
+        dir: 0–>360° | dip: 0–>90° | rak: -180–>180° | step>0
       </div>
     </div>
 
