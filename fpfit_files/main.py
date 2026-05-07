@@ -26,7 +26,7 @@ FPFIT_CFG_CURRENT = FPFIT_CFG_DIR / "fpfit.current.inp"
 FPFIT_CFG_BACKUPS = FPFIT_CFG_DIR / "backups"
 FPFIT_PROFILES_DIR = FPFIT_CFG_DIR / "profiles"
 CONFIG_NAME_RE = re.compile(r"^[A-Za-z0-9._-]{1,80}$")
-
+ACTIVE_PROFILE_FILE = FPFIT_CFG_DIR / "active_profile.txt"
 RUN_SCRIPT = Path("/etc/software/fpfit/scripts/runfpfit1.sh")
 CONTOUR_DIR = Path("/etc/software/fpfit/dati")
 CONTOUR_FILES = ["cont", "cont0"]
@@ -38,6 +38,17 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="/srv/fpfitweb/static"), name="static")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
+
+
+
+def get_active_profile() -> str:
+    if ACTIVE_PROFILE_FILE.exists():
+        return ACTIVE_PROFILE_FILE.read_text(encoding="utf-8").strip()
+    return "default"
+
+
+def set_active_profile(name: str) -> None:
+    ACTIVE_PROFILE_FILE.write_text(name.strip(), encoding="utf-8")
 
 def safe_base(base: str) -> str:
     if not SAFE_BASE_RE.match(base):
@@ -188,7 +199,7 @@ def backup_current_config(prefix: str = "fpfit.current") -> None:
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     configs = list_configs()
-    selected_config = configs[0] if configs else "default"
+    selected_config = get_active_profile()
     cfg_text = read_config_by_name(selected_config)
     cfg = parse_config(cfg_text)
 
@@ -238,7 +249,8 @@ async def save_fpfit_config(
 async def load_fpfit_config(request: Request, selected_config: str = Form(...)):
     safe = safe_config_name(selected_config)
     text = read_config_by_name(safe)
-
+    set_active_profile(safe)
+    
     return templates.TemplateResponse(
         "index.html",
         {
