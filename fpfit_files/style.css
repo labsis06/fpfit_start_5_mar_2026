@@ -374,3 +374,22 @@ textarea {
   color: #64748b;
   margin-top: 4px;
 }
+
+select,
+input[type="text"] {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 12px;
+  color: #1e293b;
+}
+
+.config-inline-form {
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+  margin: 16px 0;
+}

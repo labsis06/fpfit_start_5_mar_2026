@@ -85,6 +85,15 @@
     <label for="p01_file">File .p01</label>
     <input id="p01_file" type="file" name="p01_file">
   </div>
+  
+  <div>
+  <label for="selected_config_run">Configurazione FPFIT da usare</label>
+  <select id="selected_config_run" name="selected_config">
+    {% for name in configs %}
+      <option value="{{ name }}" {% if name == selected_config %}selected{% endif %}>{{ name }}</option>
+    {% endfor %}
+  </select>
+</div>
 
   <button type="submit">Esegui elaborazione</button>
 </form>
@@ -219,6 +228,18 @@
     Le modifiche vengono salvate con backup automatico.
   </p>
 
+ <form action="/fpfit-config/load" method="post" class="config-inline-form">
+  <div>
+    <label for="selected_config">Configurazioni salvate</label>
+    <select id="selected_config" name="selected_config">
+      {% for name in configs %}
+        <option value="{{ name }}" {% if name == selected_config %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit" class="secondary-btn">Carica</button>
+</form>
+
   {% if config_saved %}
     <p class="msg-ok">Configurazione FPFIT salvata correttamente.</p>
   {% endif %}
@@ -227,7 +248,18 @@
     <p class="msg-info">Configurazione ripristinata ai valori di default.</p>
   {% endif %}
 
+  {% if config_deleted %}
+  <p class="msg-info">Configurazione cancellata. Backup creato automaticamente.</p>
+  {% endif %}
+
+
   <form action="/fpfit-config/save" method="post">
+    <div>
+      <label for="config_name">Nome configurazione</label>
+      <input id="config_name" type="text" name="config_name" value="{{ selected_config }}" required>
+      <p class="hint">Usa solo lettere, numeri, punto, trattino e underscore.</p>
+    </div>
+    
     <div>
       <label for="fpfit_config">Configurazione attiva</label>
       <textarea id="fpfit_config" name="fpfit_config">{{ fpfit_config }}</textarea>
@@ -236,6 +268,13 @@
     <div class="row" style="margin-top:12px;">
       <button type="submit">Salva parametri</button>
     </div>
+  </form>
+  
+  <form action="/fpfit-config/delete" method="post" style="margin-top:12px;">
+  <input type="hidden" name="selected_config" value="{{ selected_config }}">
+  <button type="submit" class="secondary-btn">
+    Cancella configurazione
+  </button>
   </form>
 
   <form action="/fpfit-config/reset" method="post" style="margin-top:12px;">

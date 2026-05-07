@@ -3,15 +3,16 @@ set -e
 set -u
 set -o pipefail
 
-mode="${1:?Uso: $0 <direct|hypo71> <evento_senza_estensione>}"
-nome="${2:?Uso: $0 <direct|hypo71> <evento_senza_estensione>}"
+mode="${1:?Uso: $0 <direct|hypo71> <evento_senza_estensione> [config_file]}"
+nome="${2:?Uso: $0 <direct|hypo71> <evento_senza_estensione> [config_file]}"
+FPFIT_CFG_CURRENT="${3:-/etc/software/fpfit/config/fpfit.current.inp}"
 
 FPFIT_DIR="/etc/software/fpfit"
 HYPO71_DIR="/etc/software/hypo71"
 HYPO71_EXE="/etc/software/hypo71/Hypo71PC"
 DATA_DIR="/etc/software/fpfit/dati"
 FPFIT_CFG_DIR="/etc/software/fpfit/config"
-FPFIT_CFG_CURRENT="${FPFIT_CFG_DIR}/fpfit.current.inp"
+#FPFIT_CFG_CURRENT="${FPFIT_CFG_DIR}/fpfit.current.inp"
 FPFIT_CFG_DEFAULT="${FPFIT_CFG_DIR}/fpfit.defaults.inp"
 
 CONDA="/etc/software/miniconda/miniconda3/bin/conda"
