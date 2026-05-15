@@ -3,13 +3,17 @@ set -e
 set -u
 set -o pipefail
 
-mode="${1:?Uso: $0 <direct|hypo71> <evento_senza_estensione>}"
-nome="${2:?Uso: $0 <direct|hypo71> <evento_senza_estensione>}"
+mode="${1:?Uso: $0 <direct|hypo71> <evento_senza_estensione> [config_file]}"
+nome="${2:?Uso: $0 <direct|hypo71> <evento_senza_estensione> [config_file]}"
+FPFIT_CFG_CURRENT="${3:-/etc/software/fpfit/config/fpfit.current.inp}"
 
 FPFIT_DIR="/etc/software/fpfit"
 HYPO71_DIR="/etc/software/hypo71"
 HYPO71_EXE="/etc/software/hypo71/Hypo71PC"
 DATA_DIR="/etc/software/fpfit/dati"
+FPFIT_CFG_DIR="/etc/software/fpfit/config"
+#FPFIT_CFG_CURRENT="${FPFIT_CFG_DIR}/fpfit.current.inp"
+FPFIT_CFG_DEFAULT="${FPFIT_CFG_DIR}/fpfit.defaults.inp"
 
 CONDA="/etc/software/miniconda/miniconda3/bin/conda"
 GMT_ENV="/srv/fpfitweb/conda-envs/gmt66"
@@ -28,6 +32,11 @@ fi
 # verifica che GMT funzioni
 if ! "$CONDA" run -p "$GMT_ENV" gmt --version >/dev/null 2>&1; then
   echo "ERRORE: GMT non disponibile nell'env: $GMT_ENV"
+  exit 2
+fi
+
+if [ ! -f "$FPFIT_CFG_CURRENT" ]; then
+  echo "ERRORE: configurazione FPFIT non trovata: $FPFIT_CFG_CURRENT"
   exit 2
 fi
 
@@ -155,32 +164,21 @@ esac
 # evita casi EOF strani
 printf '\n' >> file.loc.h71
 
-
-
 # --- fpfit input
 cat > h71.inp <<'EOF'
-ttl   1 'none'
 hyp 'file.loc.h71'
 out 'fpfit.out'
 pol 'fpfit.pol'
 sum 'fpfit.fps'
-for   1
-mag      0.
-obs  6
-dis  0.1000E+06
-res   100.0
-ain      0.      180.0
-amp   0
-bst   0
-fin   1
-rep   1
-cmp   0
-hdr  0.1000E-01 0.2000E-01 0.5000E-01 0.1000
-mcr  0.2000      1.000      1.000      1.000
-dir    0.00      360.0      20.00      5.000
-dip    0.00      90.00      20.00      5.000
-rak  -180.0      180.0      20.00      10.00
 EOF
+
+cat "$FPFIT_CFG_CURRENT" >> h71.inp || {
+  echo "ERRORE: impossibile leggere la configurazione FPFIT da $FPFIT_CFG_CURRENT"
+  exit 2
+}
+
+echo "[DEBUG] h71.inp generato"
+cat h71.inp
 
 # --- run fpfit
 "${FPFIT_DIR}/fpfit" <<EOD

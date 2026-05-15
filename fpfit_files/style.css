@@ -248,3 +248,148 @@ hr {
   height: 1px;
   margin: 4px 0 0;
 }
+
+textarea {
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 12px;
+  color: #1e293b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.secondary-btn {
+  appearance: none;
+  border: 1px solid #c7d2fe;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  background: #eef2ff;
+  cursor: pointer;
+}
+
+.msg-ok {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.msg-info {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.is-hidden {
+  display: none !important;
+}
+
+.param {
+  cursor: pointer;
+  font-weight: 600;
+  color: #1d4ed8;
+}
+
+.grid-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.grid-form input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+}
+
+.legend-wrap {
+  position: relative;
+}
+
+.legend-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+.legend-card h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.legend-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.legend-item.wide {
+  grid-column: span 2;
+}
+
+.param-name {
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.param-desc {
+  font-size: 0.92rem;
+  margin-top: 2px;
+}
+
+.param-meta {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+select,
+input[type="text"] {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 12px;
+  color: #1e293b;
+}
+
+.config-inline-form {
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+  margin: 16px 0;
+}

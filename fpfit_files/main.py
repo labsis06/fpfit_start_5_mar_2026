@@ -6,8 +6,9 @@ import shutil
 import subprocess
 from pathlib import Path
 from uuid import uuid4
+from datetime import datetime
 from typing import Optional
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
@@ -19,7 +20,13 @@ from fastapi.staticfiles import StaticFiles
 APP_ROOT = Path("/srv/fpfitweb")
 JOBS_DIR = APP_ROOT / "jobs"
 TEMPLATES_DIR = APP_ROOT / "templates"
-
+FPFIT_CFG_DIR = Path("/etc/software/fpfit/config")
+FPFIT_CFG_DEFAULT = FPFIT_CFG_DIR / "fpfit.defaults.inp"
+FPFIT_CFG_CURRENT = FPFIT_CFG_DIR / "fpfit.current.inp"
+FPFIT_CFG_BACKUPS = FPFIT_CFG_DIR / "backups"
+FPFIT_PROFILES_DIR = FPFIT_CFG_DIR / "profiles"
+CONFIG_NAME_RE = re.compile(r"^[A-Za-z0-9._-]{1,80}$")
+ACTIVE_PROFILE_FILE = FPFIT_CFG_DIR / "active_profile.txt"
 RUN_SCRIPT = Path("/etc/software/fpfit/scripts/runfpfit1.sh")
 CONTOUR_DIR = Path("/etc/software/fpfit/dati")
 CONTOUR_FILES = ["cont", "cont0"]
@@ -31,6 +38,17 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="/srv/fpfitweb/static"), name="static")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
+
+
+
+def get_active_profile() -> str:
+    if ACTIVE_PROFILE_FILE.exists():
+        return ACTIVE_PROFILE_FILE.read_text(encoding="utf-8").strip()
+    return "default"
+
+
+def set_active_profile(name: str) -> None:
+    ACTIVE_PROFILE_FILE.write_text(name.strip(), encoding="utf-8")
 
 def safe_base(base: str) -> str:
     if not SAFE_BASE_RE.match(base):
@@ -61,17 +79,242 @@ def copy_contours(job_dir: Path) -> None:
         if src.exists():
             shutil.copy2(src, job_dir / name)
 
+def ensure_fpfit_config() -> None:
+    FPFIT_CFG_DIR.mkdir(parents=True, exist_ok=True)
+    FPFIT_CFG_BACKUPS.mkdir(parents=True, exist_ok=True)
+
+    if not FPFIT_CFG_DEFAULT.exists():
+        raise RuntimeError(f"File default FPFIT mancante: {FPFIT_CFG_DEFAULT}")
+
+    if not FPFIT_CFG_CURRENT.exists():
+        shutil.copy2(FPFIT_CFG_DEFAULT, FPFIT_CFG_CURRENT)
+
+
+def read_fpfit_config() -> str:
+    ensure_fpfit_config()
+    return FPFIT_CFG_CURRENT.read_text(encoding="utf-8")
+
+def safe_config_name(name: str) -> str:
+    name = (name or "").strip()
+    if not CONFIG_NAME_RE.match(name):
+        raise HTTPException(400, "Nome configurazione non valido. Usa solo lettere, numeri, punto, trattino e underscore.")
+    if name in {".", ".."}:
+        raise HTTPException(400, "Nome configurazione non valido.")
+    return name
+
+
+def config_path(name: str) -> Path:
+    safe = safe_config_name(name)
+    return FPFIT_PROFILES_DIR / f"{safe}.inp"
+
+
+def ensure_profiles() -> None:
+    ensure_fpfit_config()
+    FPFIT_PROFILES_DIR.mkdir(parents=True, exist_ok=True)
+
+    default_profile = FPFIT_PROFILES_DIR / "default.inp"
+    if not default_profile.exists():
+        shutil.copy2(FPFIT_CFG_DEFAULT, default_profile)
+
+
+def list_configs() -> list:
+    ensure_profiles()
+    names = []
+    for path in sorted(FPFIT_PROFILES_DIR.glob("*.inp")):
+        names.append(path.stem)
+    return names
+
+
+def read_config_by_name(name: str) -> str:
+    ensure_profiles()
+    path = config_path(name)
+    if not path.exists():
+        raise HTTPException(404, "Configurazione non trovata")
+    return path.read_text(encoding="utf-8")
+
+
+def write_config_by_name(name: str, text: str) -> None:
+    ensure_profiles()
+    validate_fpfit_config(text)
+
+    path = config_path(name)
+    FPFIT_CFG_BACKUPS.mkdir(parents=True, exist_ok=True)
+
+    if path.exists():
+        ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        backup = FPFIT_CFG_BACKUPS / f"{path.stem}.{ts}.inp"
+        shutil.copy2(path, backup)
+
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(text.strip() + "\n", encoding="utf-8")
+    tmp.replace(path)
+
+
+def delete_config_by_name(name: str) -> None:
+    ensure_profiles()
+    safe = safe_config_name(name)
+
+    if safe == "default":
+        raise HTTPException(400, "La configurazione default non può essere cancellata.")
+
+    path = config_path(safe)
+    if not path.exists():
+        raise HTTPException(404, "Configurazione non trovata")
+
+    ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    backup = FPFIT_CFG_BACKUPS / f"{path.stem}.deleted.{ts}.inp"
+    shutil.copy2(path, backup)
+    path.unlink()
+
+def parse_config(text: str):
+    cfg = {}
+    for line in text.splitlines():
+        parts = line.split()
+        if len(parts) > 1:
+            key = parts[0]
+            cfg[key] = " ".join(parts[1:])
+    return cfg
+
+def validate_fpfit_config(text: str) -> None:
+    if not text.strip():
+        raise HTTPException(400, "Configurazione FPFIT vuota.")
+
+    required = ["for", "obs", "dir", "dip", "rak"]
+    missing = [k for k in required if not re.search(rf"(?m)^{re.escape(k)}\b", text)]
+    if missing:
+        raise HTTPException(400, f"Parametri mancanti: {', '.join(missing)}")
+
+    if len(text) > 20000:
+        raise HTTPException(400, "Configurazione troppo lunga.")
+
+
+def backup_current_config(prefix: str = "fpfit.current") -> None:
+    ensure_fpfit_config()
+    if FPFIT_CFG_CURRENT.exists():
+        ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        backup = FPFIT_CFG_BACKUPS / f"{prefix}.{ts}.inp"
+        shutil.copy2(FPFIT_CFG_CURRENT, backup)           
+
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    configs = list_configs()
+    selected_config = get_active_profile()
+    cfg_text = read_config_by_name(selected_config)
+    cfg = parse_config(cfg_text)
 
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "fpfit_config": cfg_text,
+            "cfg": cfg,
+            "configs": configs,                    # qui
+            "selected_config": selected_config,    # qui
+            "config_saved": False,
+            "config_reset": False,
+            "config_deleted": False,
+            "show_config": False,
+        },
+    )
+
+@app.post("/fpfit-config/save", response_class=HTMLResponse)
+async def save_fpfit_config(
+    request: Request,
+    config_name: str = Form(...),
+    fpfit_config: str = Form(...),
+):
+    safe = safe_config_name(config_name)
+    write_config_by_name(safe, fpfit_config)
+
+    configs = list_configs()
+    text = read_config_by_name(safe)
+
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "fpfit_config": text,
+            "cfg": parse_config(text),
+            "configs": configs,
+            "selected_config": safe,
+            "config_saved": True,
+            "config_reset": False,
+            "config_deleted": False,
+            "show_config": True,
+        },
+    )
+
+@app.post("/fpfit-config/load", response_class=HTMLResponse)
+async def load_fpfit_config(request: Request, selected_config: str = Form(...)):
+    safe = safe_config_name(selected_config)
+    text = read_config_by_name(safe)
+    set_active_profile(safe)
+    
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "fpfit_config": text,
+            "cfg": parse_config(text),
+            "configs": list_configs(),
+            "selected_config": safe,
+            "config_saved": False,
+            "config_reset": False,
+            "config_deleted": False,
+            "show_config": True,
+        },
+    )
+
+
+@app.post("/fpfit-config/delete", response_class=HTMLResponse)
+async def delete_fpfit_config(request: Request, selected_config: str = Form(...)):
+    safe = safe_config_name(selected_config)
+    delete_config_by_name(safe)
+
+    configs = list_configs()
+    selected = configs[0] if configs else "default"
+    text = read_config_by_name(selected)
+
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "fpfit_config": text,
+            "cfg": parse_config(text),
+            "configs": configs,
+            "selected_config": selected,
+            "config_saved": False,
+            "config_reset": False,
+            "config_deleted": True,
+            "show_config": True,
+        },
+    )
+
+@app.post("/fpfit-config/reset", response_class=HTMLResponse)
+async def reset_fpfit_config(request: Request):
+    ensure_fpfit_config()
+    backup_current_config(prefix="fpfit.current.before_reset")
+
+    shutil.copy2(FPFIT_CFG_DEFAULT, FPFIT_CFG_CURRENT)
+
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "fpfit_config": FPFIT_CFG_CURRENT.read_text(encoding="utf-8"),
+            "config_saved": False,
+            "config_reset": True,
+             "show_config": True, 
+        },
+    )    
 
 @app.post("/run", response_class=HTMLResponse)
 async def run(
     request: Request,
     h71_file: Optional[UploadFile] = File(None),
     p01_file: Optional[UploadFile] = File(None),
+    selected_config: str = Form("default"),
 ):
     if not RUN_SCRIPT.exists():
         raise HTTPException(500, f"Script non trovato: {RUN_SCRIPT}")
@@ -134,8 +377,13 @@ async def run(
 
     log_path = job_dir / "run.log"
     try:
+        safe_cfg = safe_config_name(selected_config)
+        cfg_path = config_path(safe_cfg)
+
+        if not cfg_path.exists():
+            raise HTTPException(404, "Configurazione selezionata non trovata")
         proc = subprocess.run(
-            ["bash", str(RUN_SCRIPT), mode, base],
+            ["bash", str(RUN_SCRIPT), mode, base, str(cfg_path)],
             cwd=str(job_dir),
             capture_output=True,
             text=True,
